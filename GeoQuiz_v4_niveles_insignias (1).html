@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GeoQuiz</title>
+  <style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(135deg,#eef5ff,#f8fbff);color:#17212b;min-height:100vh}
+.container{max-width:900px;margin:0 auto;padding:28px 18px}
+.card{background:#fff;border-radius:24px;padding:30px;box-shadow:0 12px 35px rgba(23,63,95,.12);border:1px solid #e3ebf2}
+h1{margin-top:0;font-size:40px}
+h2{line-height:1.3}
+.sub{color:#5b6873;font-size:17px}
+button{border:0;border-radius:14px;padding:14px 20px;font-size:16px;font-weight:700;cursor:pointer;background:#173f5f;color:#fff;transition:.2s}
+button:hover{transform:translateY(-1px);opacity:.93}
+.hidden{display:none!important}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:20px 0}
+.stat{background:#f5f8fb;border:1px solid #e0e8ef;border-radius:16px;padding:14px;text-align:center}
+.stat b{display:block;font-size:21px;margin:4px 0}
+.daily{margin:20px 0;padding:20px;border-radius:18px;background:#edf5fa;border:2px solid #d8e0e6}
+.daily h3{margin-top:0}
+.topic-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin:22px 0}
+.topic{padding:20px;border:2px solid #d8e0e6;border-radius:16px;background:#fafcfd;color:#17212b;cursor:pointer;text-align:left}
+.topic.selected{border-color:#173f5f;background:#edf5fa;box-shadow:0 5px 14px rgba(23,63,95,.08)}
+.progress{height:12px;background:#dce3e8;border-radius:20px;overflow:hidden;margin:20px 0}
+.bar{height:100%;width:0;background:#173f5f;transition:.3s}
+.option{display:block;width:100%;margin:12px 0;background:#f5f7f9;color:#17212b;text-align:left;border:2px solid #dce3e8}
+.option:hover{background:#edf5fa;transform:none}
+.option.correct{background:#dff3e4;border-color:#5a9b67}
+.option.wrong{background:#f8dddd;border-color:#c75c5c}
+.option:disabled{cursor:default;opacity:1}
+.feedback{padding:16px;border-radius:14px;margin:16px 0;background:#f2f5f7;line-height:1.5}
+.score{font-size:52px;font-weight:800;text-align:center;margin:20px}
+.center{text-align:center}
+.small{font-size:14px;color:#65727d}
+.badges{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin:18px 0}
+.badge{padding:9px 12px;border-radius:999px;background:#f5f7f9;border:1px solid #dce3e8;font-size:13px;font-weight:700}
+.level-box{margin:18px 0;padding:16px;border-radius:16px;background:#f8fafc;border:1px solid #e1e8ee}
+.level-progress{height:9px;background:#e0e6eb;border-radius:10px;overflow:hidden;margin-top:10px}
+.level-fill{height:100%;width:0;background:#173f5f}
+@media(max-width:600px){
+ .container{padding:12px}
+ .card{padding:20px;border-radius:20px}
+ h1{font-size:32px}
+ .stats{gap:8px}
+ .stat{padding:10px 5px}
+ .stat b{font-size:17px}
+ .topic-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+  <main class="container">
+    <section class="card" id="home">
+      <h1>🌎 GeoQuiz</h1>
+      <p class="sub">Aprende y pon a prueba tus conocimientos sobre geopolítica.</p>
+      <div class="stats">
+  <div class="stat">🔥<b id="streak">0</b><span class="small">Racha</span></div>
+  <div class="stat">⭐<b id="xp">0</b><span class="small">XP</span></div>
+  <div class="stat">🧠<b id="playerLevel">Explorador</b><span class="small">Nivel</span></div>
+</div>
+<div class="daily">
+  <h3>🎯 Reto del Día</h3>
+  <p class="small">Una pregunta diaria. La recompensa solo se puede ganar una vez al día.</p>
+  <button id="dailyBtn">Jugar reto de hoy</button>
+</div>
+<div class="level-box">
+  <b>Progreso de nivel</b>
+  <div class="small" id="levelText">Explorador · 0 XP</div>
+  <div class="level-progress"><div class="level-fill" id="levelFill"></div></div>
+</div>
+<div class="badges">
+  <span class="badge" id="badgeFirst">🏅 Primer reto</span>
+  <span class="badge" id="badgeFive">🎯 5 preguntas</span>
+  <span class="badge" id="badgeStreak">🔥 Racha de 3</span>
+</div>
+<h3>📚 Jugar por categoría</h3>
+
+      <div class="topic-grid">
+        <button class="topic" data-topic="Conflictos internacionales">⚔️ Conflictos internacionales</button>
+        <button class="topic" data-topic="Comercio internacional">🚢 Comercio internacional</button>
+        <button class="topic" data-topic="Relaciones entre países">🤝 Relaciones entre países</button>
+        <button class="topic" data-topic="Bloques económicos">🌐 Bloques económicos</button>
+        <button class="topic" data-topic="Economía y geopolítica">💰 Economía y geopolítica</button>
+      </div>
+
+      <p id="selectedText" class="small">Selecciona un tema para comenzar.</p>
+      <button id="start">Comenzar quiz</button>
+    </section>
+
+    <section class="card hidden" id="quiz">
+      <div class="small" id="counter"></div>
+      <div class="progress"><div class="bar" id="bar"></div></div>
+      <h2 id="question"></h2>
+      <div id="options"></div>
+      <div id="feedback" class="feedback hidden"></div>
+      <button id="next" class="hidden">Siguiente pregunta</button>
+    </section>
+
+    <section class="card hidden" id="result">
+      <div class="center">
+        <h1>🎉 Quiz terminado</h1>
+        <div class="score" id="score"></div>
+        <h2 id="level"></h2>
+        <p id="summary"></p>
+        <button id="restart">Volver a empezar</button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+// =========================
+// BANCO DE PREGUNTAS
+// =========================
+// Cada tema tiene sus propias preguntas.
+// Por eso al escoger un tema, GeoQuiz filtra únicamente
+// las preguntas pertenecientes a esa categoría.
+
+const questions = [
+  // CONFLICTOS INTERNACIONALES
+  {t:"Conflictos internacionales",q:"¿Por qué un conflicto entre dos países puede afectar a otros países?",
+   o:["Porque ningún país depende de otros","Porque puede alterar el comercio y las cadenas de suministro","Porque los conflictos solo tienen efectos militares","Porque no tiene consecuencias fuera de la zona"],
+   a:1,e:"Los conflictos pueden interrumpir rutas, proveedores y relaciones comerciales, generando efectos fuera de los países directamente involucrados."},
+  {t:"Conflictos internacionales",q:"¿Qué concepto permite analizar la exposición de un país ante una tensión internacional?",
+   o:["Riesgo geopolítico","Publicidad","Clima","Turismo"],
+   a:0,e:"El riesgo geopolítico ayuda a estudiar la exposición ante conflictos, tensiones, sanciones y otros acontecimientos políticos internacionales."},
+  {t:"Conflictos internacionales",q:"Una guerra puede afectar las cadenas de suministro principalmente porque...",
+   o:["Siempre aumenta la producción mundial","Puede interrumpir rutas, proveedores y transporte","Elimina todas las fronteras","Hace que todos los productos bajen de precio"],
+   a:1,e:"Los conflictos pueden dificultar el transporte y el acceso a proveedores, afectando la llegada de bienes."},
+
+  // COMERCIO INTERNACIONAL
+  {t:"Comercio internacional",q:"Si un país deja de exportar un producto que otro país necesita, ¿qué podría ocurrir?",
+   o:["Podrían buscarse nuevos proveedores y aumentar los costos","El producto necesariamente se vuelve gratis","No ocurre ningún cambio","Se detiene todo el comercio mundial"],
+   a:0,e:"El país afectado puede buscar nuevos proveedores y enfrentar cambios en precios y costos."},
+  {t:"Comercio internacional",q:"¿Qué puede provocar una barrera comercial entre dos países?",
+   o:["Mayor facilidad para importar","Mayor dificultad o costo para comerciar","La desaparición de las fronteras","Que todos los productos bajen de precio"],
+   a:1,e:"Las barreras comerciales pueden dificultar el intercambio y aumentar costos o reducir determinados flujos comerciales."},
+  {t:"Comercio internacional",q:"¿Por qué la dependencia de un solo proveedor extranjero puede ser un riesgo para una empresa?",
+   o:["Porque garantiza que nunca habrá problemas","Porque una crisis puede interrumpir el suministro","Porque elimina los costos de transporte","Porque impide vender dentro del país"],
+   a:1,e:"Una interrupción política, económica o logística puede afectar el suministro cuando existe una alta dependencia de un solo proveedor."},
+
+  // RELACIONES ENTRE PAÍSES
+  {t:"Relaciones entre países",q:"¿Qué puede buscar un país al establecer una alianza con otros Estados?",
+   o:["Aislarse completamente","Fortalecer la cooperación y defender intereses comunes","Eliminar todo comercio","Evitar cualquier relación internacional"],
+   a:1,e:"Las alianzas permiten coordinar intereses y cooperación política, económica, comercial o de seguridad."},
+  {t:"Relaciones entre países",q:"¿Cuál es una razón para mantener relaciones diplomáticas con otros países?",
+   o:["Facilitar diálogo y cooperación","Evitar todo contacto internacional","Eliminar los acuerdos comerciales","Impedir la negociación"],
+   a:0,e:"La diplomacia facilita el diálogo, la negociación y la cooperación entre Estados."},
+  {t:"Relaciones entre países",q:"¿Qué puede suceder cuando un país depende demasiado de un solo socio comercial?",
+   o:["Aumenta su exposición ante cambios en esa relación","Desaparece cualquier riesgo","Se vuelve imposible una crisis","El comercio deja de existir"],
+   a:0,e:"Una alta dependencia puede aumentar la vulnerabilidad si cambian las condiciones políticas, económicas o comerciales del socio."},
+
+  // BLOQUES ECONÓMICOS
+  {t:"Bloques económicos",q:"¿Qué caracteriza principalmente a un bloque económico?",
+   o:["La cooperación económica entre varios países","Que solo exista un país miembro","La eliminación de todos los gobiernos","Que ningún miembro pueda comerciar"],
+   a:0,e:"Los bloques económicos reúnen países que buscan facilitar o coordinar relaciones económicas y comerciales."},
+  {t:"Bloques económicos",q:"¿Por qué es útil comparar la respuesta de distintos bloques ante un mismo acontecimiento?",
+   o:["Para observar diferencias en intereses y estrategias","Para demostrar que todos reaccionan igual","Para eliminar la geografía","Para evitar analizar relaciones internacionales"],
+   a:0,e:"Comparar actores permite identificar intereses, capacidades y estrategias diferentes frente a una misma situación."},
+  {t:"Bloques económicos",q:"La integración económica entre países puede facilitar principalmente...",
+   o:["La cooperación y el intercambio comercial","El aislamiento de todos los miembros","La desaparición de los mercados","La prohibición de exportaciones"],
+   a:0,e:"La integración puede facilitar la cooperación y determinadas formas de intercambio entre los países miembros."},
+
+  // ECONOMÍA Y GEOPOLÍTICA
+  {t:"Economía y geopolítica",q:"Una crisis geopolítica puede influir en la economía porque...",
+   o:["La política y la economía nunca se relacionan","Puede afectar precios, comercio, inversión y suministro","Solo afecta los mapas","Siempre reduce los precios"],
+   a:1,e:"Las decisiones y conflictos internacionales pueden producir cambios en precios, comercio, inversión y disponibilidad de bienes."},
+  {t:"Economía y geopolítica",q:"¿Qué actor puede necesitar información geopolítica antes de tomar una decisión comercial?",
+   o:["Un importador","Un inversionista","Una empresa","Todos los anteriores"],
+   a:3,e:"Empresas, importadores e inversionistas pueden verse afectados por cambios políticos, comerciales y económicos internacionales."},
+  {t:"Economía y geopolítica",q:"Si una crisis internacional aumenta el costo de transporte, una empresa importadora podría...",
+   o:["Analizar proveedores y rutas alternativas","Ignorar completamente el problema","Suponer que los costos bajarán siempre","Dejar de analizar el mercado"],
+   a:0,e:"Una empresa puede evaluar proveedores, rutas y costos alternativos para reducir su exposición al cambio."}
+];
+
+let selectedTopic = null;
+let current = 0;
+let score = 0;
+let filtered = [];
+let isDaily = false;
+let sessionXP = 0;
+
+let progress = JSON.parse(localStorage.getItem("geoquizProgress")) || {
+  xp: 0,
+  streak: 0,
+  lastDay: null,
+  dailyCompletedDate: null,
+  completedQuestions: []
+};
+if(!Array.isArray(progress.completedQuestions)) progress.completedQuestions=[];
+
+function todayKey(){
+  const d=new Date();
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+}
+function saveProgress(){ localStorage.setItem("geoquizProgress",JSON.stringify(progress)); }
+function getLevel(){
+  if(progress.xp>=1000)return "Experto";
+  if(progress.xp>=600)return "Estratega";
+  if(progress.xp>=300)return "Analista";
+  if(progress.xp>=100)return "Aprendiz";
+  return "Explorador";
+}
+function updateStats(){
+  const xp=document.getElementById("xp");
+  const streak=document.getElementById("streak");
+  const level=document.getElementById("playerLevel");
+  const levelText=document.getElementById("levelText");
+  const fill=document.getElementById("levelFill");
+
+  if(xp) xp.textContent=progress.xp;
+  if(streak) streak.textContent=progress.streak;
+  if(level) level.textContent=getLevel();
+
+  const levels=[
+    {name:"Explorador",min:0,next:100},
+    {name:"Aprendiz",min:100,next:300},
+    {name:"Analista",min:300,next:600},
+    {name:"Estratega",min:600,next:1000},
+    {name:"Experto",min:1000,next:1000}
+  ];
+  const currentLevel=levels.find((l,i)=>progress.xp<l.next || i===levels.length-1);
+  if(levelText){
+    levelText.textContent=currentLevel.name+" · "+progress.xp+" XP";
+  }
+  if(fill){
+    const range=currentLevel.next-currentLevel.min;
+    const pct=range===0 ? 100 : Math.min(100,Math.max(0,(progress.xp-currentLevel.min)/range*100));
+    fill.style.width=pct+"%";
+  }
+
+  const daily=document.getElementById("dailyBtn");
+  if(daily) daily.textContent=progress.dailyCompletedDate===todayKey()
+    ? "✅ Reto de hoy completado" : "🎯 Jugar reto de hoy";
+
+  const badges=document.querySelectorAll(".badge");
+  if(badges.length){
+    badges[0].style.opacity=progress.completedQuestions.length>=1?1:.35;
+    badges[1].style.opacity=progress.completedQuestions.length>=5?1:.35;
+    badges[2].style.opacity=progress.streak>=3?1:.35;
+  }
+}
+function questionId(q){return q.t+"|"+q.q;}
+function isCompleted(q){return progress.completedQuestions.includes(questionId(q));}
+function markCompleted(q){
+  const id=questionId(q);
+  if(!progress.completedQuestions.includes(id)){
+    progress.completedQuestions.push(id);
+    return true;
+  }
+  return false;
+}
+function awardXP(amount){progress.xp+=amount;saveProgress();updateStats();}
+function updateStreak(){
+  const today=todayKey();
+  if(progress.lastDay===today)return;
+  if(!progress.lastDay) progress.streak=1;
+  else{
+    const previous=new Date(progress.lastDay+"T00:00:00");
+    const currentDate=new Date(today+"T00:00:00");
+    const diff=Math.round((currentDate-previous)/86400000);
+    progress.streak=diff===1 ? progress.streak+1 : 1;
+  }
+  progress.lastDay=today;
+}
+
+
+const home = document.getElementById("home");
+const quiz = document.getElementById("quiz");
+const result = document.getElementById("result");
+const selectedText = document.getElementById("selectedText");
+
+document.querySelectorAll(".topic").forEach(button => {
+  button.addEventListener("click", () => {
+    document.querySelectorAll(".topic").forEach(b => b.classList.remove("selected"));
+    button.classList.add("selected");
+    selectedTopic = button.dataset.topic;
+    selectedText.textContent = "Tema seleccionado: " + selectedTopic;
+  });
+});
+
+document.getElementById("start").addEventListener("click", () => {
+  isDaily=false;
+  filtered=selectedTopic ? questions.filter(question=>question.t===selectedTopic) : questions;
+  beginGame();
+});
+
+document.getElementById("dailyBtn").addEventListener("click",()=>{
+  if(progress.dailyCompletedDate===todayKey()){
+    alert("🎯 Ya completaste el Reto del Día.\n\nVuelve mañana para un nuevo reto.");
+    return;
+  }
+  isDaily=true;
+  const dayNumber=Math.floor(Date.now()/86400000);
+  filtered=[questions[dayNumber % questions.length]];
+  beginGame();
+});
+
+function beginGame(){
+  current=0;
+  score=0;
+  sessionXP=0;
+  home.classList.add("hidden");
+  result.classList.add("hidden");
+  quiz.classList.remove("hidden");
+  showQuestion();
+}
+
+function showQuestion() {
+  const question = filtered[current];
+
+  document.getElementById("counter").textContent =
+    `Pregunta ${current + 1} de ${filtered.length}`;
+
+  document.getElementById("bar").style.width =
+    ((current) / filtered.length * 100) + "%";
+
+  document.getElementById("question").textContent = question.q;
+
+  const optionsBox = document.getElementById("options");
+  optionsBox.innerHTML = "";
+
+  document.getElementById("feedback").classList.add("hidden");
+  document.getElementById("next").classList.add("hidden");
+
+  question.o.forEach((option, index) => {
+    const button = document.createElement("button");
+    button.className = "option";
+    button.textContent = option;
+    button.addEventListener("click", () => answer(index, button));
+    optionsBox.appendChild(button);
+  });
+}
+
+function answer(selectedIndex, selectedButton) {
+  const question=filtered[current];
+  const fresh=!isCompleted(question);
+
+  document.querySelectorAll(".option").forEach((button,index)=>{
+    button.disabled=true;
+    if(index===question.a)button.classList.add("correct");
+  });
+
+  const feedback=document.getElementById("feedback");
+
+  if(selectedIndex===question.a){
+    score++;
+    feedback.textContent="✅ ¡Correcto! "+question.e;
+    if(fresh){
+      const gain=isDaily?100:25;
+      awardXP(gain);
+      sessionXP+=gain;
+      markCompleted(question);
+    }else{
+      feedback.textContent+=" 🔁 Ya completada: +0 XP.";
+    }
+  }else{
+    selectedButton.classList.add("wrong");
+    feedback.textContent="❌ Incorrecto. "+question.e;
+    if(fresh){
+      const gain=isDaily?20:5;
+      awardXP(gain);
+      sessionXP+=gain;
+      markCompleted(question);
+    }else{
+      feedback.textContent+=" 🔁 Ya completada: +0 XP.";
+    }
+  }
+
+  if(isDaily){
+    progress.dailyCompletedDate=todayKey();
+    updateStreak();
+    saveProgress();
+  }
+  updateStats();
+  feedback.classList.remove("hidden");
+  document.getElementById("next").classList.remove("hidden");
+}
+
+document.getElementById("next").addEventListener("click", () => {
+  current++;
+
+  if (current < filtered.length) {
+    showQuestion();
+  } else {
+    finish();
+  }
+});
+
+function finish() {
+  quiz.classList.add("hidden");
+  result.classList.remove("hidden");
+
+  const percentage = Math.round(score / filtered.length * 100);
+
+  document.getElementById("score").textContent =
+    `${score}/${filtered.length} (${percentage}%)`;
+
+  document.getElementById("level").textContent =
+    percentage >= 80 ? "Nivel avanzado 🌟" :
+    percentage >= 60 ? "Nivel intermedio 👍" :
+    "Nivel inicial 📚";
+
+  document.getElementById("summary").innerHTML =
+    "⭐ XP ganado en esta sesión: <b>+"+sessionXP+"</b><br>"+
+    "🧠 Nivel actual: <b>"+getLevel()+"</b><br><br>"+
+    (isDaily ? "🎯 Reto del Día completado. ¡Vuelve mañana!" :
+    "🔁 Puedes repetir para practicar, pero las preguntas ya completadas no vuelven a dar XP.");
+}
+
+document.getElementById("restart").addEventListener("click", () => {
+  result.classList.add("hidden");
+  home.classList.remove("hidden");
+  selectedTopic=null;
+  isDaily=false;
+  sessionXP=0;
+  selectedText.textContent="Selecciona un tema para comenzar.";
+  document.querySelectorAll(".topic").forEach(b=>b.classList.remove("selected"));
+  updateStats();
+});
+updateStats();
+
+</script>
+</body>
+</html>
