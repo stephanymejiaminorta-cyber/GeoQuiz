@@ -1,425 +1,911 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GeoQuiz</title>
-  <style>
-*{box-sizing:border-box}
-body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(135deg,#eef5ff,#f8fbff);color:#17212b;min-height:100vh}
-.container{max-width:900px;margin:0 auto;padding:28px 18px}
-.card{background:#fff;border-radius:24px;padding:30px;box-shadow:0 12px 35px rgba(23,63,95,.12);border:1px solid #e3ebf2}
-h1{margin-top:0;font-size:40px}
-h2{line-height:1.3}
-.sub{color:#5b6873;font-size:17px}
-button{border:0;border-radius:14px;padding:14px 20px;font-size:16px;font-weight:700;cursor:pointer;background:#173f5f;color:#fff;transition:.2s}
-button:hover{transform:translateY(-1px);opacity:.93}
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GeoQuiz · Ruta de aprendizaje</title>
+<style>
+/* ============ 1. VARIABLES Y BASE ============
+   Paleta: azules #0A1F44/#1E3A8A · dorados #D4AF37/#F59E0B · verde #047857 · rojo diplomático #B91C1C */
+:root{--navy:#0A1F44;--blue:#1E3A8A;--sky:#3B82F6;--gold:#D4AF37;--amber:#F59E0B;--green:#047857;--lime:#10B981;--red:#B91C1C;--white:#F8FAFC;--muted:#C7D2E5;--card:rgba(15,38,86,.88)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Segoe UI",Roboto,Arial,sans-serif;color:var(--white);min-height:100vh;padding-bottom:190px;
+ background:radial-gradient(circle at 12% 10%,rgba(30,58,138,.8),transparent 45%),radial-gradient(circle at 90% 90%,rgba(4,120,87,.4),transparent 45%),var(--navy);background-attachment:fixed}
+button{font:inherit;color:inherit;cursor:pointer}
 .hidden{display:none!important}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:20px 0}
-.stat{background:#f5f8fb;border:1px solid #e0e8ef;border-radius:16px;padding:14px;text-align:center}
-.stat b{display:block;font-size:21px;margin:4px 0}
-.daily{margin:20px 0;padding:20px;border-radius:18px;background:#edf5fa;border:2px solid #d8e0e6}
-.daily h3{margin-top:0}
-.topic-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin:22px 0}
-.topic{padding:20px;border:2px solid #d8e0e6;border-radius:16px;background:#fafcfd;color:#17212b;cursor:pointer;text-align:left}
-.topic.selected{border-color:#173f5f;background:#edf5fa;box-shadow:0 5px 14px rgba(23,63,95,.08)}
-.progress{height:12px;background:#dce3e8;border-radius:20px;overflow:hidden;margin:20px 0}
-.bar{height:100%;width:0;background:#173f5f;transition:.3s}
-.option{display:block;width:100%;margin:12px 0;background:#f5f7f9;color:#17212b;text-align:left;border:2px solid #dce3e8}
-.option:hover{background:#edf5fa;transform:none}
-.option.correct{background:#dff3e4;border-color:#5a9b67}
-.option.wrong{background:#f8dddd;border-color:#c75c5c}
-.option:disabled{cursor:default;opacity:1}
-.feedback{padding:16px;border-radius:14px;margin:16px 0;background:#f2f5f7;line-height:1.5}
-.score{font-size:52px;font-weight:800;text-align:center;margin:20px}
-.center{text-align:center}
-.small{font-size:14px;color:#65727d}
-.badges{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin:18px 0}
-.badge{padding:9px 12px;border-radius:999px;background:#f5f7f9;border:1px solid #dce3e8;font-size:13px;font-weight:700}
-.level-box{margin:18px 0;padding:16px;border-radius:16px;background:#f8fafc;border:1px solid #e1e8ee}
-.level-progress{height:9px;background:#e0e6eb;border-radius:10px;overflow:hidden;margin-top:10px}
-.level-fill{height:100%;width:0;background:#173f5f}
-@media(max-width:600px){
- .container{padding:12px}
- .card{padding:20px;border-radius:20px}
- h1{font-size:32px}
- .stats{gap:8px}
- .stat{padding:10px 5px}
- .stat b{font-size:17px}
- .topic-grid{grid-template-columns:1fr}
-}
+:focus-visible{outline:3px solid var(--amber);outline-offset:3px}
+main{max-width:760px;margin:0 auto;padding:14px}
+.screen{display:none}.screen.active{display:block;animation:slideUp .45s ease}
+.card{background:var(--card);border:1px solid rgba(212,175,55,.35);border-radius:22px;padding:22px;box-shadow:0 16px 40px rgba(0,0,0,.4)}
+h1,h2,h3{line-height:1.2}.gold{color:var(--gold)}.muted{color:var(--muted)}
+.btn{border:0;border-radius:14px;padding:14px 22px;font-weight:800;font-size:17px;letter-spacing:.5px;color:#fff;background:var(--blue);border-bottom:5px solid #14296a;transition:transform .1s}
+.btn:active{transform:translateY(3px);border-bottom-width:2px}
+.btn.gold{background:var(--amber);color:#1a1200;border-bottom-color:#92610a}
+.btn.green{background:var(--lime);color:#032;border-bottom-color:#047857}
+.btn.wide{width:100%}
+@keyframes slideUp{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}
+@keyframes pop{0%{transform:scale(.6);opacity:0}70%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,.7)}50%{box-shadow:0 0 0 16px rgba(245,158,11,0)}}
+@keyframes shimmer{to{background-position:-200% 0}}
+@keyframes shakeX{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+
+/* ============ 2. HUD (racha, XP, vidas, progreso global) ============ */
+#hud{position:sticky;top:0;z-index:20;background:rgba(10,31,68,.95);backdrop-filter:blur(8px);border-bottom:2px solid rgba(212,175,55,.4);padding:8px 14px}
+.hud-row{max-width:760px;margin:0 auto;display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.pill{background:rgba(255,255,255,.1);border:0;border-radius:30px;padding:7px 13px;font-weight:800;font-size:16px}
+.pill.bump{animation:pop .4s}
+.gbar{height:12px;background:rgba(255,255,255,.15);border-radius:10px;overflow:hidden;max-width:760px;margin:8px auto 0}
+.gbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--lime),var(--gold));border-radius:10px;transition:width .8s}
+#nav{display:flex;gap:6px;max-width:760px;margin:10px auto 0;padding:0 14px}
+#nav button,.tabs button{flex:1;padding:11px 6px;border-radius:14px;border:2px solid transparent;background:rgba(255,255,255,.08);font-weight:700;font-size:15px}
+#nav button.on,.tabs button.on{background:rgba(212,175,55,.22);border-color:var(--gold)}
+
+/* ============ 3. BIENVENIDA ============ */
+.field{margin:14px 0}.field label{display:block;font-weight:700;color:var(--gold);margin-bottom:6px}
+.field input{width:100%;padding:14px;font-size:18px;border-radius:12px;border:2px solid var(--blue);background:#fff;color:var(--navy)}
+.avs{display:flex;flex-wrap:wrap;gap:8px}
+.av{font-size:28px;width:52px;height:52px;border-radius:14px;border:2px solid transparent;background:rgba(255,255,255,.08)}
+.av.sel{border-color:var(--gold);background:rgba(212,175,55,.25);transform:scale(1.1)}
+
+/* ============ 4. RUTA DE APRENDIZAJE ============ */
+.unit-h{margin:26px 0 6px;padding:12px 16px;border-radius:16px;background:linear-gradient(90deg,var(--green),var(--blue));border-bottom:4px solid rgba(0,0,0,.3)}
+.unit-h small{opacity:.85;display:block}
+.path{display:flex;flex-direction:column;align-items:center;padding:6px 0}
+.node-wrap{position:relative;padding:14px 0}
+.node-wrap:not(:last-child)::after{content:"";position:absolute;left:50%;top:100%;height:22px;border-left:5px dotted rgba(212,175,55,.5);transform:translateX(-50%)}
+.node{width:88px;height:88px;border-radius:50%;border:0;font-size:36px;position:relative;display:grid;place-items:center;background:var(--lime);border-bottom:8px solid #047857;transition:transform .15s}
+.node:hover{transform:scale(1.07)}.node:active{transform:translateY(4px);border-bottom-width:3px}
+.node.done{background:var(--gold);border-bottom-color:#8a6d12}
+.node.cur{background:var(--amber);border-bottom-color:#92610a;animation:pulse 1.8s infinite}
+.node.lock{background:#4b5b7a;border-bottom-color:#2d3a55;filter:grayscale(.5)}
+.node .st{position:absolute;bottom:-26px;font-size:13px;white-space:nowrap}
+.node .ck{position:absolute;top:-4px;right:-4px;font-size:24px}
+.start-tag{position:absolute;top:-34px;left:50%;transform:translateX(-50%);background:#fff;color:var(--navy);font-weight:800;font-size:13px;padding:4px 10px;border-radius:10px;animation:pop .5s}
+.node-wrap:nth-child(4n+2){transform:translateX(-55px)}.node-wrap:nth-child(4n+4){transform:translateX(55px)}
+.node.shake{animation:shakeX .4s}
+
+/* ============ 5. LECCIÓN ============ */
+.l-top{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.l-top .x{background:none;border:0;font-size:26px;color:var(--muted)}
+.l-bar{flex:1;height:16px;background:rgba(255,255,255,.15);border-radius:10px;overflow:hidden}
+.l-bar i{display:block;height:100%;width:0;background:var(--lime);border-radius:10px;transition:width .5s}
+.q-ic{font-size:48px}.q-t{font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--gold);font-weight:700}
+#question{font-size:clamp(20px,4vw,26px);margin:8px 0 18px}
+.opts{display:grid;gap:10px}
+.opt{text-align:left;padding:15px 16px;border-radius:16px;background:#fff;color:var(--navy);border:2px solid #cbd5e1;border-bottom-width:5px;font-weight:600;font-size:17px;display:flex;gap:12px;align-items:center}
+.opt kbd{background:#e2e8f0;border-radius:8px;padding:2px 9px;font-size:14px}
+.opt:hover:not(:disabled){background:#eef4ff;border-color:var(--sky)}
+.opt.ok{background:#d1fae5;border-color:var(--lime);color:#064e3b}
+.opt.bad{background:#fee2e2;border-color:var(--red);color:#7f1d1d;animation:shakeX .4s}
+.opt:disabled{cursor:default}
+.fb{margin-top:16px;padding:16px;border-radius:16px;animation:slideUp .3s}
+.fb.ok{background:rgba(16,185,129,.2);border:2px solid var(--lime)}.fb.bad{background:rgba(185,28,28,.25);border:2px solid #f87171}
+.fb h3{margin-bottom:6px}.fb p{margin-bottom:12px;line-height:1.5}
+
+/* ============ 6. RESULTADOS Y PERFIL ============ */
+.res{text-align:center}.res .big{font-size:72px;animation:pop .6s}
+.stats{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:16px 0}
+.stat{background:rgba(255,255,255,.1);border-radius:14px;padding:12px 18px;min-width:110px}.stat b{display:block;font-size:24px;color:var(--gold)}
+.badges{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin:12px 0}
+.badge{background:rgba(255,255,255,.08);border-radius:14px;padding:12px;text-align:center;font-size:14px;filter:grayscale(1);opacity:.5}
+.badge.on{filter:none;opacity:1;border:1px solid var(--gold);background:rgba(212,175,55,.15)}.badge span{font-size:32px;display:block}
+.rank{list-style:none;display:grid;gap:6px;margin-top:8px}.rank li{display:flex;gap:10px;align-items:center;background:rgba(255,255,255,.08);padding:9px 12px;border-radius:12px}
+.rank li.me{background:rgba(212,175,55,.25);border:1px solid var(--gold)}.rank .xp{margin-left:auto;font-weight:800;color:var(--gold)}
+
+/* ============ 7. NOTICIAS Y VIDEOS ============ */
+.tabs{display:flex;gap:8px;margin-bottom:14px}
+.news-grid{display:grid;gap:14px}
+.ncard{display:grid;grid-template-columns:130px 1fr;background:var(--card);border:1px solid rgba(212,175,55,.3);border-radius:18px;overflow:hidden;animation:slideUp .4s}
+.ncard .im{background:linear-gradient(135deg,var(--blue),var(--green));min-height:130px;background-size:cover;background-position:center;display:grid;place-items:center;font-size:38px}
+.ncard .bd{padding:12px 14px}.ncard h3{font-size:16px;margin:4px 0}.ncard p{font-size:14px;color:var(--muted);margin-bottom:8px}
+.meta{font-size:12px;color:var(--gold);font-weight:700}
+.link{color:var(--amber);font-weight:800;text-decoration:none}.link:hover{text-decoration:underline}
+.sk{height:130px;border-radius:18px;background:linear-gradient(90deg,rgba(255,255,255,.06) 25%,rgba(255,255,255,.18) 50%,rgba(255,255,255,.06) 75%);background-size:200% 100%;animation:shimmer 1.2s linear infinite}
+.player{aspect-ratio:16/9;border-radius:18px;overflow:hidden;background:#000;border:2px solid var(--gold);position:relative}
+.player iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.vgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;margin-top:14px}
+.vcard{background:var(--card);border:1px solid rgba(212,175,55,.3);border-radius:16px;overflow:hidden;text-align:left;padding:0}
+.vcard .th{aspect-ratio:16/9;background-size:cover;background-position:center;display:grid;place-items:center;font-size:40px;text-shadow:0 2px 8px #000}
+.vcard div.t{padding:10px;font-size:14px;font-weight:700}.vcard.on{border-color:var(--amber)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.chip{padding:7px 14px;border-radius:30px;border:1px solid var(--gold);background:rgba(212,175,55,.15);color:#fff;text-decoration:none;font-size:14px}
+
+/* ============ 8. MASCOTA JAGÜI ============ */
+#mwrap{position:fixed;right:10px;bottom:8px;z-index:40;display:flex;flex-direction:column;align-items:flex-end;gap:6px;pointer-events:none}
+#bubble,#mascot,#mute{pointer-events:auto}
+#bubble{max-width:min(290px,72vw);background:#fff;color:var(--navy);border-radius:18px 18px 4px 18px;padding:10px 32px 10px 14px;font-size:15px;line-height:1.4;position:relative;box-shadow:0 8px 24px rgba(0,0,0,.4);border:2px solid var(--gold);opacity:0;transform:translateY(12px) scale(.92);visibility:hidden;transition:.35s}
+#bubble.show{opacity:1;transform:none;visibility:visible}
+#bubble b{display:block;color:var(--green);font-size:12px;letter-spacing:.5px}
+#bclose{position:absolute;top:4px;right:6px;border:0;background:none;font-size:18px;color:#64748b}
+.mrow{display:flex;align-items:flex-end;gap:6px}
+#mute{border:0;border-radius:50%;width:38px;height:38px;background:rgba(10,31,68,.9);border:2px solid var(--gold);font-size:16px}
+#mascot{border:0;background:none;width:140px;padding:0;border-radius:50%;filter:drop-shadow(0 8px 10px rgba(0,0,0,.5))}
+#mascot img{width:100%;height:auto;display:block;border-radius:50%;border:3px solid var(--gold);animation:idle 3.2s ease-in-out infinite}
+@keyframes idle{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-7px) scale(1.03)}}
+@keyframes hop{0%,100%{transform:translateY(0)}30%{transform:translateY(-46px) scale(.95,1.08)}60%{transform:translateY(0) scale(1.08,.92)}80%{transform:translateY(-14px)}}
+@keyframes wob{0%,100%{transform:rotate(0)}20%{transform:rotate(-14deg)}40%{transform:rotate(12deg)}60%{transform:rotate(-9deg)}80%{transform:rotate(6deg)}}
+@keyframes cel{0%{transform:rotate(0) scale(1)}50%{transform:rotate(180deg) scale(1.25)}100%{transform:rotate(360deg) scale(1)}}
+@keyframes wave{0%,100%{transform:rotate(0)}25%{transform:rotate(10deg)}50%{transform:rotate(-8deg)}75%{transform:rotate(8deg)}}
+@keyframes talk{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+#mascot.hop{animation:hop .9s}#mascot.shake{animation:wob .8s}#mascot.celebrate{animation:cel 1s}#mascot.wave{animation:wave .9s}#mascot.talk{animation:talk .45s 2}
+
+/* ============ 9. MODAL Y TOAST ============ */
+#modal{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.65);display:none;place-items:center;padding:16px}
+#modal.open{display:grid}#modal .card{max-width:420px;text-align:center;animation:pop .4s}
+#toast{position:fixed;left:50%;top:80px;transform:translateX(-50%);background:#fff;color:var(--navy);padding:10px 18px;border-radius:14px;font-weight:700;z-index:70;display:none;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+
+/* ============ 10. RESPONSIVE / ACCESIBILIDAD ============ */
+@media(max-width:600px){#mascot{width:84px}.ncard{grid-template-columns:96px 1fr}.node-wrap:nth-child(4n+2){transform:translateX(-35px)}.node-wrap:nth-child(4n+4){transform:translateX(35px)}.pill{font-size:14px;padding:6px 10px}}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important;transition:none!important}}
+
+/* ============ 11. GeoQuiz v3: navegación, cuentas, celebración, amigos ============ */
+.brand{background:none;border:0;color:var(--gold);font-weight:800;font-size:18px;padding:8px 6px;min-height:44px}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:4px 0 12px}
+.homebtn{background:rgba(255,255,255,.1);border:1px solid var(--gold);border-radius:14px;min-height:44px;padding:8px 12px;font-weight:800;font-size:14px;white-space:nowrap}
+.xbtn,.l-top .x{min-width:44px;min-height:44px;border-radius:12px;border:2px solid rgba(255,255,255,.55);background:rgba(255,255,255,.14);color:#fff;font-size:22px;font-weight:800;line-height:1}
+.xbtn:hover,.l-top .x:hover{background:var(--red)}
+#qm{position:fixed;inset:0;z-index:65;background:rgba(0,0,0,.7);display:none;place-items:center;padding:16px}
+#qm.open{display:grid}#qm .card{max-width:400px;text-align:center;animation:pop .4s}
+#qmImg{width:96px;height:96px;border-radius:50%;border:3px solid var(--gold);object-fit:cover;animation:idle 2.4s ease-in-out infinite}
+.qbub{background:#fff;color:var(--navy);border:2px solid var(--gold);border-radius:18px;padding:12px 14px;margin:12px 0 16px;font-weight:700;line-height:1.4}
+.qbtns{display:grid;gap:10px}
+.field input.pw{letter-spacing:2px}
+.auth-tabs{display:flex;gap:8px;margin:10px 0}.auth-tabs button{flex:1;padding:11px;border-radius:14px;border:2px solid transparent;background:rgba(255,255,255,.08);font-weight:700}
+.auth-tabs button.on{background:rgba(212,175,55,.22);border-color:var(--gold)}
+.err{color:#fca5a5;font-weight:700;min-height:22px;margin:6px 0}
+.portrait{display:block;margin:0 auto 14px;width:min(240px,70%);aspect-ratio:1;object-fit:cover;object-position:top;border-radius:18px;border:3px solid var(--gold);animation:pop .4s}
+.hint{background:rgba(255,255,255,.1);border-radius:14px;padding:12px;margin-bottom:14px;color:var(--muted)}
+.bonus{color:var(--gold);font-weight:800;margin-bottom:8px}
+#cf{position:fixed;inset:0;width:100%;height:100%;z-index:55;pointer-events:none}
+.fl{position:fixed;z-index:58;pointer-events:none;animation:flo 1.4s ease-out forwards}
+@keyframes flo{from{opacity:1;transform:translate(0,0) scale(.6)}to{opacity:0;transform:translate(var(--dx),-140px) scale(1.4) rotate(25deg)}}
+@keyframes glow{0%{box-shadow:0 0 0 0 rgba(16,185,129,.9)}100%{box-shadow:0 0 0 22px rgba(16,185,129,0)}}
+.opt.ok{animation:glow .8s}
+.frow{display:flex;gap:10px;align-items:center;background:rgba(255,255,255,.08);border-radius:14px;padding:10px 12px;margin:6px 0}
+.frow>div{flex:1;min-width:0}.frow small{display:block;color:var(--muted)}.fa{font-size:30px}
+.btn.sm{padding:8px 12px;font-size:14px;border-bottom-width:3px}
+.fsearch{width:100%;padding:12px;font-size:17px;border-radius:12px;border:2px solid var(--blue);background:#fff;color:var(--navy)}
+.th.ld{background-image:linear-gradient(90deg,rgba(255,255,255,.06) 25%,rgba(255,255,255,.18) 50%,rgba(255,255,255,.06) 75%)!important;background-size:200% 100%!important;animation:shimmer 1.2s linear infinite;color:transparent}
+.foot{text-align:center;color:var(--muted);font-size:13px;margin:28px 0 8px}
+@media(max-width:600px){.homebtn{padding:8px 9px;font-size:13px}.l-top{gap:6px}}
+
+/* ============ Historia y cultura ============ */
+.culture-head{margin:4px 0 14px}.culture-head h2{margin:4px 0}.culture-intro{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:12px 0 16px;background:linear-gradient(120deg,rgba(30,58,138,.95),rgba(4,120,87,.72))}.culture-intro h3{font-size:clamp(19px,3vw,25px);margin:12px 0 6px}.culture-intro p{margin:0;max-width:620px}.culture-mark{font-size:clamp(42px,8vw,76px);white-space:nowrap;filter:drop-shadow(0 6px 10px #06152f)}
+.culture-filters{display:flex;gap:8px;overflow-x:auto;padding:3px 2px 12px;scrollbar-width:thin}.culture-filters button{flex:0 0 auto;padding:10px 13px;border:1px solid rgba(255,255,255,.18);border-radius:999px;background:rgba(255,255,255,.08);color:#fff;font-weight:750}.culture-filters button.on{background:rgba(212,175,55,.24);border-color:var(--gold);color:#ffe8a0}
+.culture-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,270px),1fr));gap:14px}.culture-card{overflow:hidden;border:1px solid rgba(255,255,255,.14);border-radius:18px;background:rgba(15,38,86,.92);box-shadow:0 8px 22px rgba(0,0,0,.16)}.culture-photo{height:176px;background:linear-gradient(135deg,#19366d,#0b715f);display:flex;align-items:center;justify-content:center;font-size:60px;position:relative;overflow:hidden}.culture-photo img{width:100%;height:100%;object-fit:cover;display:block}.culture-photo .photo-credit{position:absolute;bottom:7px;right:8px;background:rgba(0,0,0,.68);border-radius:7px;padding:3px 7px;font-size:10px;color:#fff}.culture-body{padding:14px}.culture-tag{display:inline-block;color:#ffe5a0;background:rgba(212,175,55,.14);border:1px solid rgba(212,175,55,.35);border-radius:99px;padding:4px 9px;font-size:11px;font-weight:800}.culture-body h3{margin:9px 0 4px;font-size:20px}.culture-meta{font-size:12px;color:#b8c8e4;margin-bottom:8px}.culture-body p{font-size:14px;line-height:1.5;color:#dce6f7;margin:7px 0}.culture-more{display:none;border-top:1px solid rgba(255,255,255,.12);margin-top:10px;padding-top:10px}.culture-card.expanded .culture-more{display:block}.culture-more ul{padding-left:19px;margin:7px 0;color:#dce6f7;font-size:13px;line-height:1.55}.culture-actions{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:12px}.culture-actions button{border:1px solid var(--gold);border-radius:10px;padding:8px 11px;background:rgba(212,175,55,.14);color:#ffe5a0;font-weight:800}.culture-actions a{font-size:12px;color:#9fc5ff;text-decoration:underline}.culture-note{font-size:12px;margin:14px 2px}.culture-empty{padding:24px;text-align:center;color:#c7d2e5}
+@media(max-width:560px){.culture-intro{align-items:flex-start}.culture-mark{font-size:42px}.culture-photo{height:155px}}
 </style>
 </head>
 <body>
-  <main class="container">
-    <section class="card" id="home">
-      <h1>🌎 GeoQuiz</h1>
-      <p class="sub">Aprende y pon a prueba tus conocimientos sobre geopolítica.</p>
-      <div class="stats">
-  <div class="stat">🔥<b id="streak">0</b><span class="small">Racha</span></div>
-  <div class="stat">⭐<b id="xp">0</b><span class="small">XP</span></div>
-  <div class="stat">🧠<b id="playerLevel">Explorador</b><span class="small">Nivel</span></div>
+
+<!-- ============ HUD + NAVEGACIÓN ============ -->
+<header id="hud" class="hidden">
+  <div class="hud-row">
+    <button class="brand" id="brand" aria-label="Volver al inicio de GeoQuiz">🌍 GeoQuiz</button>
+    <span class="pill" id="pStreak" title="Racha de días">🔥 0</span>
+    <span class="pill" id="pXP" title="Experiencia">⭐ 0 XP</span>
+    <button class="pill" id="pHearts" title="Vidas (clic: recuperar una con 30 XP)" aria-label="Vidas">❤️ 5</button>
+  </div>
+  <div class="gbar" role="progressbar" aria-label="Progreso global" aria-valuemin="0" aria-valuemax="100"><i id="gProg"></i></div>
+</header>
+<nav id="nav" class="hidden" aria-label="Secciones">
+  <button data-go="path">🗺️ Ruta</button><button data-go="culture">🏛️ Cultura</button><button data-go="news">📰 Noticias</button><button data-go="friends">🤝 Amigos</button><button data-go="profile">👤 Perfil</button>
+</nav>
+
+<main>
+  <!-- Bienvenida -->
+  <section id="s-welcome" class="screen"><div class="card" id="wBox"></div></section>
+
+  <!-- Ruta -->
+  <section id="s-path" class="screen"><h2 class="gold" tabindex="-1" style="margin:4px 0">Tu ruta de aprendizaje</h2><div id="pathBox"></div></section>
+
+  <!-- Lección -->
+  <section id="s-lesson" class="screen"><div class="card">
+    <div class="l-top"><button class="x" id="lx" aria-label="Salir de la lección">✕</button><button class="homebtn" id="lhome" aria-label="Volver al inicio de GeoQuiz">🏠 GeoQuiz</button><div class="l-bar"><i id="lbar"></i></div><span class="pill" id="lh">❤️ 5</span></div>
+    <div class="q-ic" id="qic"></div><div class="q-t" id="qt"></div>
+    <h2 id="question" tabindex="-1"></h2>
+    <div id="qimg"></div>
+    <div class="opts" id="opts"></div>
+    <div id="fb" aria-live="polite"></div>
+  </div></section>
+
+  <!-- Resultados -->
+  <section id="s-result" class="screen"><div class="card res" id="resBox"></div></section>
+
+  <!-- Historia y cultura -->
+  <section id="s-culture" class="screen">
+    <div class="culture-head">
+      <p class="gold" style="font-weight:800;letter-spacing:1px">CONOCE EL MUNDO MÁS ALLÁ DEL MAPA</p>
+      <h2 class="gold" tabindex="-1">🏛️ Historia y cultura</h2>
+      <p class="muted">Personajes, civilizaciones, acontecimientos y tradiciones que ayudan a entender nuestro mundo.</p>
+    </div>
+    <div class="culture-intro card">
+      <div><span class="pill">📚 Aprende a tu ritmo</span><h3>La historia tiene rostros, lugares y grandes historias.</h3><p class="muted">Explora una ficha, mira la imagen, conoce su contexto y descubre por qué sigue siendo importante hoy.</p></div>
+      <div class="culture-mark" aria-hidden="true">🌍🏺</div>
+    </div>
+    <div class="culture-filters" id="cultureFilters" role="group" aria-label="Filtrar contenido cultural">
+      <button class="on" data-cat="all">Todo</button><button data-cat="person">👤 Personajes</button><button data-cat="event">📜 Acontecimientos</button><button data-cat="civilization">🏺 Civilizaciones</button><button data-cat="tradition">🎭 Tradiciones</button><button data-cat="place">🏛️ Lugares</button>
+    </div>
+    <div id="cultureGrid" class="culture-grid" aria-live="polite"></div>
+    <p class="muted culture-note">Las imágenes y lecturas de referencia se consultan en Wikipedia. El contenido educativo de GeoQuiz está resumido para facilitar el aprendizaje.</p>
+  </section>
+
+  <!-- Noticias / Videos -->
+  <section id="s-news" class="screen">
+    <div class="tabs" role="tablist"><button role="tab" id="tN" class="on">📰 Noticias</button><button role="tab" id="tV">🎥 Videos</button></div>
+    <div id="newsPane"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><span class="muted" id="nStat"></span><button class="btn" id="nRef" style="padding:8px 14px;font-size:14px">↻ Actualizar</button></div><div class="news-grid" id="newsBox"></div></div>
+    <div id="vidPane" class="hidden"></div>
+  </section>
+
+  <!-- Amigos -->
+  <section id="s-friends" class="screen"><div class="card" id="friendsBox"></div></section>
+
+  <!-- Perfil -->
+  <section id="s-profile" class="screen"><div class="card" id="profBox"></div></section>
+<footer class="foot">🌍 <b>GeoQuiz</b> · Aprende geografía, historia y cultura jugando · Jagüi te acompaña 🐆</footer></main>
+
+<!-- ============ MASCOTA JAGÜI (fija en todas las pantallas) ============ -->
+<div id="mwrap">
+  <div id="bubble" role="status" aria-live="polite"><button id="bclose" aria-label="Cerrar mensaje">×</button><b>🐆 Jagüi</b><span id="btext"></span></div>
+  <div class="mrow">
+    <button id="mute" aria-label="Silenciar mensajes de Jagüi" title="Silenciar / activar mensajes">🔔</button>
+    <button id="mascot" aria-label="Jagüi, la mascota. Toca para un dato curioso"><img id="mimg" src="data:image/webp;base64,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" alt="Jagüi, jaguar ejecutivo con maletín y globo terráqueo"></button>
+  </div>
 </div>
-<div class="daily">
-  <h3>🎯 Reto del Día</h3>
-  <p class="small">Una pregunta diaria. La recompensa solo se puede ganar una vez al día.</p>
-  <button id="dailyBtn">Jugar reto de hoy</button>
-</div>
-<div class="level-box">
-  <b>Progreso de nivel</b>
-  <div class="small" id="levelText">Explorador · 0 XP</div>
-  <div class="level-progress"><div class="level-fill" id="levelFill"></div></div>
-</div>
-<div class="badges">
-  <span class="badge" id="badgeFirst">🏅 Primer reto</span>
-  <span class="badge" id="badgeFive">🎯 5 preguntas</span>
-  <span class="badge" id="badgeStreak">🔥 Racha de 3</span>
-</div>
-<h3>📚 Jugar por categoría</h3>
+<div id="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle"><div class="card"><h2 id="mTitle" class="gold">🐆 Dato curioso de Jagüi</h2><p id="mText" style="margin:14px 0;line-height:1.5"></p><button class="btn green" id="mMore">Otro dato</button> <button class="btn" id="mClose">Cerrar</button></div></div>
+<div id="qm" role="dialog" aria-modal="true" aria-labelledby="qmT"><div class="card"><img id="qmImg" alt="Jagüi, la mascota de GeoQuiz" width="96" height="96"><div class="qbub" id="qmT"></div><div class="qbtns"><button class="btn" id="qmY" style="background:var(--red);border-bottom-color:#7f1d1d">Sí, salir</button><button class="btn green" id="qmN">No, continuar</button></div></div></div>
+<div id="toast" role="alert"></div>
 
-      <div class="topic-grid">
-        <button class="topic" data-topic="Conflictos internacionales">⚔️ Conflictos internacionales</button>
-        <button class="topic" data-topic="Comercio internacional">🚢 Comercio internacional</button>
-        <button class="topic" data-topic="Relaciones entre países">🤝 Relaciones entre países</button>
-        <button class="topic" data-topic="Bloques económicos">🌐 Bloques económicos</button>
-        <button class="topic" data-topic="Economía y geopolítica">💰 Economía y geopolítica</button>
-      </div>
+<script>
+/* ============ A. DATOS: BANCO DE PREGUNTAS (la PRIMERA opción es la correcta; se baraja al jugar) ============ */
+const BANK = [
+ // BLOQUES ECONÓMICOS
+ {t:"Bloques económicos",ic:"🇪🇺",img:"flags",q:"¿Qué distingue a la Unión Europea de una simple zona de libre comercio?",
+  o:["Tiene mercado único, unión aduanera y políticas comunes","Solo elimina aranceles entre sus miembros","No tiene instituciones propias","Obliga a todos los miembros a usar el mismo idioma"],
+  e:"La UE va más allá del libre comercio: combina unión aduanera (arancel externo común), mercado único y políticas comunes; además, 20 de sus miembros comparten el euro."},
+ {t:"Bloques económicos",ic:"🤝",img:"mapa",q:"¿Qué acuerdo reemplazó al TLCAN y entró en vigor el 1 de julio de 2020?",
+  o:["T-MEC (USMCA)","Mercosur","ALCA","TPP"],
+  e:"El T-MEC (en inglés USMCA) conecta a México, Estados Unidos y Canadá, y actualizó reglas de origen automotriz, laborales y de comercio digital."},
+ {t:"Bloques económicos",ic:"🌎",img:"mapa",q:"¿Qué países fundaron el Mercosur con el Tratado de Asunción (1991)?",
+  o:["Argentina, Brasil, Paraguay y Uruguay","Colombia, Perú, Chile y México","Brasil, Chile, Bolivia y Venezuela","Argentina, Ecuador, Perú y Brasil"],
+  e:"El Mercosur nació como unión aduanera imperfecta del Cono Sur. Su arancel externo común aún tiene excepciones y su integración ha sido irregular."},
+ {t:"Bloques económicos",ic:"🌏",img:"puerto",q:"La ASEAN es un bloque de integración de…",
+  o:["Sudeste Asiático","Asia Central","África Oriental","Oriente Medio"],
+  e:"La ASEAN (sede en Yakarta) agrupa a países como Indonesia, Singapur, Tailandia o Vietnam. Es un eje clave de las cadenas de valor en Asia-Pacífico."},
+ {t:"Bloques económicos",ic:"🌐",img:"mundo",q:"¿Cuál de estas instituciones fue creada por los BRICS como alternativa de financiamiento al desarrollo?",
+  o:["Nuevo Banco de Desarrollo","Banco Interamericano de Desarrollo","Fondo Monetario Internacional","Banco Central Europeo"],
+  e:"El Nuevo Banco de Desarrollo (NBD, Shanghái) financia infraestructura y desarrollo sostenible en economías emergentes, ofreciendo opciones fuera de las instituciones de Bretton Woods."},
 
-      <p id="selectedText" class="small">Selecciona un tema para comenzar.</p>
-      <button id="start">Comenzar quiz</button>
-    </section>
+ // ORGANISMOS
+ {t:"Organismos internacionales",ic:"⚖️",img:"flags",q:"¿Cuál es una función central de la Organización Mundial del Comercio (OMC)?",
+  o:["Administrar las reglas del comercio y resolver diferencias entre miembros","Imprimir moneda de reserva mundial","Enviar fuerzas de paz","Fijar los precios del petróleo"],
+  e:"La OMC (Ginebra, sucesora del GATT en 1995) vigila acuerdos comerciales, sirve de foro de negociación y cuenta con un sistema de solución de diferencias."},
+ {t:"Organismos internacionales",ic:"🏦",img:"bolsa",q:"¿Para qué suele recurrir un país al Fondo Monetario Internacional (FMI)?",
+  o:["Apoyo financiero ante desequilibrios de balanza de pagos","Construir carreteras con crédito blando únicamente","Resolver disputas comerciales","Establecer aranceles globales"],
+  e:"El FMI promueve la estabilidad macroeconómica y financiera, y presta a países con crisis de balanza de pagos, normalmente con condiciones de política económica."},
+ {t:"Organismos internacionales",ic:"🏛️",img:"flags",q:"¿Qué órgano de la ONU puede imponer sanciones obligatorias y tiene 5 miembros con derecho a veto?",
+  o:["El Consejo de Seguridad","La Asamblea General","La Corte Internacional de Justicia","El Banco Mundial"],
+  e:"EE. UU., Reino Unido, Francia, Rusia y China tienen veto en el Consejo de Seguridad, lo que condiciona las respuestas colectivas a conflictos."},
+ {t:"Organismos internacionales",ic:"📊",img:"bolsa",q:"Colombia ingresó en 2020 a una organización con sede en París que promueve buenas prácticas de política pública. ¿Cuál es?",
+  o:["OCDE","OMC","OPEP","ASEAN"],
+  e:"La OCDE produce estadísticas, estudios y estándares sobre economía, educación, comercio e inversión. Colombia es miembro desde abril de 2020."},
+ {t:"Organismos internacionales",ic:"🌱",img:"mundo",q:"El Banco Mundial se enfoca principalmente en…",
+  o:["Reducir la pobreza y financiar el desarrollo","Regular el tipo de cambio de todos los países","Controlar el comercio de armas","Emitir el euro"],
+  e:"El Banco Mundial otorga préstamos, garantías y asistencia técnica para proyectos de desarrollo, infraestructura, salud y educación."},
 
-    <section class="card hidden" id="quiz">
-      <div class="small" id="counter"></div>
-      <div class="progress"><div class="bar" id="bar"></div></div>
-      <h2 id="question"></h2>
-      <div id="options"></div>
-      <div id="feedback" class="feedback hidden"></div>
-      <button id="next" class="hidden">Siguiente pregunta</button>
-    </section>
+ // COMERCIO EXTERIOR
+ {t:"Comercio internacional",ic:"💰",img:"puerto",q:"¿Qué es un arancel?",
+  o:["Un impuesto a las mercancías importadas","Un subsidio a la exportación","Un tipo de seguro marítimo","Un acuerdo de paz comercial"],
+  e:"Los aranceles encarecen los bienes importados, protegen la producción local y generan ingresos fiscales; pueden desencadenar guerras comerciales."},
+ {t:"Comercio internacional",ic:"📈",img:"bolsa",q:"Si las exportaciones de un país superan a sus importaciones de bienes, tiene…",
+  o:["Superávit en la balanza comercial","Déficit en la balanza comercial","Hiperinflación","Una unión aduanera"],
+  e:"Balanza comercial = exportaciones – importaciones. Un saldo positivo es superávit; uno negativo, déficit."},
+ {t:"Comercio internacional",ic:"🚢",img:"puerto",q:"Bajo el Incoterm FOB, ¿cuándo se transfiere el riesgo de la mercancía al comprador?",
+  o:["Cuando la mercancía está a bordo del buque en el puerto de embarque","Cuando llega al almacén del comprador","Cuando se firma el contrato","Cuando se paga el arancel en destino"],
+  e:"FOB (Free On Board) es un término marítimo de los Incoterms® 2020 de la CCI: el vendedor entrega la mercancía a bordo y desde ese punto el riesgo pasa al comprador."},
+ {t:"Comercio internacional",ic:"🌐",img:"mundo",q:"La globalización económica se caracteriza por…",
+  o:["Mayor interdependencia de comercio, capitales y tecnología","El cierre total de fronteras","La desaparición de las empresas multinacionales","Precios idénticos en todos los países"],
+  e:"La globalización integra mercados mediante comercio, inversión, finanzas y cadenas de valor, con beneficios y desigualdades que se debaten ampliamente."},
+ {t:"Comercio internacional",ic:"💱",img:"bolsa",q:"Si el peso colombiano se deprecia frente al dólar, normalmente…",
+  o:["Las importaciones se encarecen y las exportaciones ganan competitividad","Las importaciones se abaratan siempre","Se eliminan las deudas en dólares","Las exportaciones se vuelven imposibles"],
+  e:"Un peso más débil encarece lo importado y las deudas en dólares, pero puede mejorar el precio relativo de lo que se exporta."},
+ {t:"Comercio internacional",ic:"🏭",img:"puerto",q:"La inversión extranjera directa (IED) implica…",
+  o:["Un inversionista que adquiere control o presencia duradera en una empresa extranjera","Comprar acciones a corto plazo para especular","Un préstamo del FMI","Un subsidio estatal a exportadores"],
+  e:"La IED (fábricas, filiales, adquisiciones significativas) busca presencia duradera. Se diferencia de la inversión de portafolio, más volátil."},
 
-    <section class="card hidden" id="result">
-      <div class="center">
-        <h1>🎉 Quiz terminado</h1>
-        <div class="score" id="score"></div>
-        <h2 id="level"></h2>
-        <p id="summary"></p>
-        <button id="restart">Volver a empezar</button>
-      </div>
-    </section>
-  </main>
+ // CHOKE POINTS
+ {t:"Choke points",ic:"🛢️",img:"mapa",q:"¿Por qué el Estrecho de Ormuz es un choke point estratégico?",
+  o:["Por él circula una gran parte del petróleo transportado por mar","Conecta el Atlántico con el Pacífico","Es la principal ruta del café","Une el Mar Báltico con el Ártico"],
+  e:"Ormuz comunica el Golfo Pérsico con el mar Arábigo; cerca de una quinta parte del petróleo mundial pasa por él, por eso cualquier tensión afecta los precios."},
+ {t:"Choke points",ic:"🚢",img:"puerto",q:"El Canal de Suez es clave porque…",
+  o:["Conecta el Mediterráneo con el Mar Rojo, acortando la ruta Asia–Europa","Conecta el Atlántico con el Pacífico en América","Une el Mar Negro con el Mediterráneo","Atraviesa Rusia de norte a sur"],
+  e:"El bloqueo del Ever Given (2021) y los ataques en el Mar Rojo mostraron que desvíos por el Cabo de Buena Esperanza elevan tiempos y costos de transporte."},
+ {t:"Choke points",ic:"🗺️",img:"mapa",q:"El Estrecho de Malaca, entre Malasia e Indonesia, es crucial sobre todo para…",
+  o:["El comercio y el suministro energético de Asia Oriental, en especial China","El comercio entre Brasil y África","El tránsito de gas ruso a Alemania","La ruta entre Canadá y Groenlandia"],
+  e:"Gran parte del petróleo importado por China pasa por Malaca, lo que se conoce como el 'dilema de Malaca' y motiva rutas e infraestructura alternativas."},
+ {t:"Choke points",ic:"🌎",img:"puerto",q:"¿Qué conecta el Canal de Panamá?",
+  o:["Los océanos Atlántico y Pacífico","El Mar Rojo y el Mediterráneo","El Caribe con el Golfo de México","El Pacífico con el Índico"],
+  e:"Tras la sequía de 2023–2024 se redujeron los tránsitos diarios, evidenciando cómo el clima también es un riesgo logístico y geopolítico."},
 
-  <script>
-// =========================
-// BANCO DE PREGUNTAS
-// =========================
-// Cada tema tiene sus propias preguntas.
-// Por eso al escoger un tema, GeoQuiz filtra únicamente
-// las preguntas pertenecientes a esa categoría.
+ // SISTEMAS ECONÓMICOS
+ {t:"Capitalismo y comunismo",ic:"⚒️",img:"bolsa",q:"¿Cuál es la diferencia central entre el sistema capitalista y el comunista clásico?",
+  o:["En el capitalismo predomina la propiedad privada de los medios de producción; en el comunismo, la colectiva o estatal","En el capitalismo no existe el mercado","En el comunismo hay libre competencia total","No existe ninguna diferencia"],
+  e:"La Guerra Fría enfrentó a EE. UU. (capitalismo) y la URSS (planificación central). Hoy China combina partido único con elementos de mercado: 'socialismo con características chinas'."},
 
-const questions = [
-  // CONFLICTOS INTERNACIONALES
-  {t:"Conflictos internacionales",q:"¿Por qué un conflicto entre dos países puede afectar a otros países?",
-   o:["Porque ningún país depende de otros","Porque puede alterar el comercio y las cadenas de suministro","Porque los conflictos solo tienen efectos militares","Porque no tiene consecuencias fuera de la zona"],
-   a:1,e:"Los conflictos pueden interrumpir rutas, proveedores y relaciones comerciales, generando efectos fuera de los países directamente involucrados."},
-  {t:"Conflictos internacionales",q:"¿Qué concepto permite analizar la exposición de un país ante una tensión internacional?",
-   o:["Riesgo geopolítico","Publicidad","Clima","Turismo"],
-   a:0,e:"El riesgo geopolítico ayuda a estudiar la exposición ante conflictos, tensiones, sanciones y otros acontecimientos políticos internacionales."},
-  {t:"Conflictos internacionales",q:"Una guerra puede afectar las cadenas de suministro principalmente porque...",
-   o:["Siempre aumenta la producción mundial","Puede interrumpir rutas, proveedores y transporte","Elimina todas las fronteras","Hace que todos los productos bajen de precio"],
-   a:1,e:"Los conflictos pueden dificultar el transporte y el acceso a proveedores, afectando la llegada de bienes."},
+ // RIESGOS Y CRISIS
+ {t:"Riesgos geopolíticos",ic:"⚠️",img:"mapa",q:"¿Cuál es un ejemplo de riesgo geopolítico para una empresa exportadora?",
+  o:["Sanciones, conflictos o expropiaciones en el mercado destino","Un día soleado en el puerto","Un cambio de logotipo","El aumento de seguidores en redes sociales"],
+  e:"El riesgo geopolítico incluye conflictos, sanciones, inestabilidad política, cambios regulatorios y nacionalismo económico que pueden afectar ventas, inversiones y suministro."},
+ {t:"Sanciones",ic:"🚫",img:"flags",q:"En 2022, varios bancos rusos fueron desconectados de SWIFT. ¿Qué tipo de medida es esa?",
+  o:["Una sanción financiera","Un arancel de importación","Un subsidio agrícola","Una devaluación competitiva"],
+  e:"Las sanciones financieras limitan el acceso a pagos internacionales, activos y crédito, y son una herramienta de presión de la diplomacia económica."},
+ {t:"Diplomacia",ic:"🕊️",img:"flags",q:"El concepto de 'poder blando' (soft power) hace referencia a…",
+  o:["Influir mediante cultura, valores y atracción, no por la fuerza","Usar solo el poder militar","Cerrar embajadas","Imponer aranceles"],
+  e:"Introducido por Joseph Nye, el poder blando se apoya en cultura, educación, marca país y diplomacia para lograr influencia y cooperación."},
+ {t:"Crisis económica",ic:"📉",img:"bolsa",q:"La crisis financiera global de 2008 se originó principalmente en…",
+  o:["El colapso del mercado hipotecario subprime de EE. UU.","La guerra entre Rusia y Ucrania","El Brexit","La pandemia de COVID-19"],
+  e:"La quiebra de Lehman Brothers (sept. 2008) propagó el contagio financiero global, deteriorando crédito, comercio y empleo."},
+ {t:"Cadenas de suministro",ic:"💻",img:"puerto",q:"¿Por qué la concentración de la fabricación de semiconductores en Taiwán es un riesgo geopolítico?",
+  o:["Una disrupción allí afectaría industrias en todo el mundo","Porque Taiwán no exporta","Porque los chips no se usan en autos","Porque no hay empresas del sector"],
+  e:"Autos, celulares y defensa dependen de chips avanzados. Esta concentración ha impulsado políticas de 'relocalización' y 'friend-shoring'."},
+ {t:"Recursos estratégicos",ic:"🔋",img:"mapa",q:"El llamado 'triángulo del litio' está formado por…",
+  o:["Argentina, Bolivia y Chile","Colombia, Venezuela y Ecuador","México, Cuba y Panamá","Perú, Brasil y Uruguay"],
+  e:"Estos tres países de Sudamérica concentran gran parte de las reservas de litio, un mineral clave para baterías y transición energética."},
 
-  // COMERCIO INTERNACIONAL
-  {t:"Comercio internacional",q:"Si un país deja de exportar un producto que otro país necesita, ¿qué podría ocurrir?",
-   o:["Podrían buscarse nuevos proveedores y aumentar los costos","El producto necesariamente se vuelve gratis","No ocurre ningún cambio","Se detiene todo el comercio mundial"],
-   a:0,e:"El país afectado puede buscar nuevos proveedores y enfrentar cambios en precios y costos."},
-  {t:"Comercio internacional",q:"¿Qué puede provocar una barrera comercial entre dos países?",
-   o:["Mayor facilidad para importar","Mayor dificultad o costo para comerciar","La desaparición de las fronteras","Que todos los productos bajen de precio"],
-   a:1,e:"Las barreras comerciales pueden dificultar el intercambio y aumentar costos o reducir determinados flujos comerciales."},
-  {t:"Comercio internacional",q:"¿Por qué la dependencia de un solo proveedor extranjero puede ser un riesgo para una empresa?",
-   o:["Porque garantiza que nunca habrá problemas","Porque una crisis puede interrumpir el suministro","Porque elimina los costos de transporte","Porque impide vender dentro del país"],
-   a:1,e:"Una interrupción política, económica o logística puede afectar el suministro cuando existe una alta dependencia de un solo proveedor."},
+ // BREXIT
+ {t:"Brexit",ic:"🇬🇧",img:"flags",q:"¿Cuándo salió formalmente el Reino Unido de la Unión Europea?",
+  o:["31 de enero de 2020","23 de junio de 2016","1 de enero de 2021","24 de febrero de 2022"],
+  e:"El referéndum fue en junio de 2016; la salida formal ocurrió el 31/01/2020 y la transición terminó el 31/12/2020, con nuevos controles aduaneros y regulatorios."},
 
-  // RELACIONES ENTRE PAÍSES
-  {t:"Relaciones entre países",q:"¿Qué puede buscar un país al establecer una alianza con otros Estados?",
-   o:["Aislarse completamente","Fortalecer la cooperación y defender intereses comunes","Eliminar todo comercio","Evitar cualquier relación internacional"],
-   a:1,e:"Las alianzas permiten coordinar intereses y cooperación política, económica, comercial o de seguridad."},
-  {t:"Relaciones entre países",q:"¿Cuál es una razón para mantener relaciones diplomáticas con otros países?",
-   o:["Facilitar diálogo y cooperación","Evitar todo contacto internacional","Eliminar los acuerdos comerciales","Impedir la negociación"],
-   a:0,e:"La diplomacia facilita el diálogo, la negociación y la cooperación entre Estados."},
-  {t:"Relaciones entre países",q:"¿Qué puede suceder cuando un país depende demasiado de un solo socio comercial?",
-   o:["Aumenta su exposición ante cambios en esa relación","Desaparece cualquier riesgo","Se vuelve imposible una crisis","El comercio deja de existir"],
-   a:0,e:"Una alta dependencia puede aumentar la vulnerabilidad si cambian las condiciones políticas, económicas o comerciales del socio."},
+ // RUSIA-UCRANIA
+ {t:"Guerra Rusia-Ucrania",ic:"🌾",img:"puerto",q:"¿Por qué la guerra Rusia-Ucrania afectó los precios de alimentos y energía?",
+  o:["Ambos son grandes exportadores de cereales y Rusia de energía","Porque son los mayores exportadores de café","Porque cerraron el Canal de Panamá","Porque bloquearon el Estrecho de Malaca"],
+  e:"La invasión a gran escala (24/02/2022) alteró exportaciones de trigo, maíz, fertilizantes, petróleo y gas, y reconfiguró la política energética europea."},
 
-  // BLOQUES ECONÓMICOS
-  {t:"Bloques económicos",q:"¿Qué caracteriza principalmente a un bloque económico?",
-   o:["La cooperación económica entre varios países","Que solo exista un país miembro","La eliminación de todos los gobiernos","Que ningún miembro pueda comerciar"],
-   a:0,e:"Los bloques económicos reúnen países que buscan facilitar o coordinar relaciones económicas y comerciales."},
-  {t:"Bloques económicos",q:"¿Por qué es útil comparar la respuesta de distintos bloques ante un mismo acontecimiento?",
-   o:["Para observar diferencias en intereses y estrategias","Para demostrar que todos reaccionan igual","Para eliminar la geografía","Para evitar analizar relaciones internacionales"],
-   a:0,e:"Comparar actores permite identificar intereses, capacidades y estrategias diferentes frente a una misma situación."},
-  {t:"Bloques económicos",q:"La integración económica entre países puede facilitar principalmente...",
-   o:["La cooperación y el intercambio comercial","El aislamiento de todos los miembros","La desaparición de los mercados","La prohibición de exportaciones"],
-   a:0,e:"La integración puede facilitar la cooperación y determinadas formas de intercambio entre los países miembros."},
-
-  // ECONOMÍA Y GEOPOLÍTICA
-  {t:"Economía y geopolítica",q:"Una crisis geopolítica puede influir en la economía porque...",
-   o:["La política y la economía nunca se relacionan","Puede afectar precios, comercio, inversión y suministro","Solo afecta los mapas","Siempre reduce los precios"],
-   a:1,e:"Las decisiones y conflictos internacionales pueden producir cambios en precios, comercio, inversión y disponibilidad de bienes."},
-  {t:"Economía y geopolítica",q:"¿Qué actor puede necesitar información geopolítica antes de tomar una decisión comercial?",
-   o:["Un importador","Un inversionista","Una empresa","Todos los anteriores"],
-   a:3,e:"Empresas, importadores e inversionistas pueden verse afectados por cambios políticos, comerciales y económicos internacionales."},
-  {t:"Economía y geopolítica",q:"Si una crisis internacional aumenta el costo de transporte, una empresa importadora podría...",
-   o:["Analizar proveedores y rutas alternativas","Ignorar completamente el problema","Suponer que los costos bajarán siempre","Dejar de analizar el mercado"],
-   a:0,e:"Una empresa puede evaluar proveedores, rutas y costos alternativos para reducir su exposición al cambio."}
+ // AMÉRICA LATINA
+ {t:"América Latina",ic:"🌎",img:"mapa",q:"Un desafío estructural de muchas economías latinoamericanas es…",
+  o:["La dependencia de exportaciones de materias primas","La falta total de recursos naturales","La ausencia de comercio exterior","El uso exclusivo de una moneda común"],
+  e:"Depender de commodities expone a la región a la volatilidad de precios y a la demanda de grandes socios (como China y EE. UU.), reforzando la necesidad de diversificar."},
+ {t:"América Latina",ic:"🤝",img:"flags",q:"La Alianza del Pacífico está integrada por…",
+  o:["Chile, Colombia, México y Perú","Argentina, Brasil, Paraguay y Uruguay","Cuba, Bolivia, Venezuela y Nicaragua","Panamá, Costa Rica, Honduras y Belice"],
+  e:"Creada en 2011, busca integración profunda de bienes, servicios, capitales y personas, y una proyección conjunta hacia Asia-Pacífico."}
 ];
 
-let selectedTopic = null;
-let current = 0;
-let score = 0;
-let filtered = [];
-let isDaily = false;
-let sessionXP = 0;
+/* Unidades temáticas: cada una agrupa índices del banco */
+const UNITS=[
+ {id:'u1',t:'Bloques económicos',ic:'🌎',idx:[0,1,2,3,4]},
+ {id:'u2',t:'Organismos internacionales',ic:'🏛️',idx:[5,6,7,8,9]},
+ {id:'u3',t:'Comercio y aranceles',ic:'🚢',idx:[10,11,12,13,14,15]},
+ {id:'u4',t:'Geopolítica y recursos estratégicos',ic:'🛢️',idx:[16,17,18,19,26]},
+ {id:'u5',t:'Sistemas, sanciones y diplomacia',ic:'🕊️',idx:[20,21,22,23]},
+ {id:'u6',t:'Crisis y mundo actual',ic:'📉',idx:[24,25,27,28,29,30]},
+ {id:'fin',t:'Examen final',ic:'🏆',final:true}
+];
+const AV=["🧑‍💼","👩‍💼","🧭","🦅","🚀","🏛️","💼","🌍","⚓","🐆"];
+const FACTS=["🌍 ¿Sabías que el T-MEC reemplazó al TLCAN en 2020?","🛢️ Cerca de una quinta parte del petróleo mundial pasa por el Estrecho de Ormuz.","💻 Gran parte de los chips más avanzados se fabrica en Taiwán.","🚢 Cuando el Ever Given bloqueó Suez en 2021, el comercio mundial se detuvo por días.","🔋 Argentina, Bolivia y Chile forman el 'triángulo del litio'.","🏦 El FMI nació en 1944 en Bretton Woods junto al Banco Mundial.","🇪🇺 El euro lo comparten 20 países de la Unión Europea.","🌾 Rusia y Ucrania son grandes exportadores de trigo y fertilizantes.","📊 Colombia es miembro de la OCDE desde 2020.","🤝 La Alianza del Pacífico nació en 2011: Chile, Colombia, México y Perú.","⚓ El Canal de Panamá conecta el Atlántico con el Pacífico.","💱 Si tu moneda se deprecia, las importaciones se encarecen."];
+const TIPS=["💡 Lee la explicación después de cada pregunta: ahí está el oro.","🔥 ¡Practica cada día para mantener tu racha!","📚 Repetir una unidad te ayuda a ganar 3 estrellas.","🧠 Piensa en quién gana y quién pierde con cada medida económica."];
 
-let progress = JSON.parse(localStorage.getItem("geoquizProgress")) || {
-  xp: 0,
-  streak: 0,
-  lastDay: null,
-  dailyCompletedDate: null,
-  completedQuestions: []
+/* ============ B. UTILIDADES Y ESTADO (localStorage) ============ */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+const KEY='GeoQuiz_acc_',REGEN=10*60e3;let ACC='';
+const DEF={name:'',avatar:AV[0],xp:0,streak:0,last:'',hearts:5,hts:Date.now(),done:{},badges:[],muted:false,perfect:0,right:0,wrong:0};const fresh=()=>({...DEF,done:{},badges:[]});
+let S=fresh();
+const save=()=>{
+ try{if(ACC)localStorage.setItem(KEY+ACC,JSON.stringify(S))}catch(e){}
+ // Sincronización en la nube: cada cuenta solo puede escribir su propio progreso (RLS).
+ if(window.gqSupabase && ACC){
+  clearTimeout(window.gqSaveTimer);
+  window.gqSaveTimer=setTimeout(async()=>{
+   try{const {data:{user}}=await window.gqSupabase.auth.getUser();if(!user||user.id!==ACC)return;
+    const {error}=await window.gqSupabase.from('geoquiz_progress').upsert({user_id:user.id,progress:S,updated_at:new Date().toISOString()},{onConflict:'user_id'});
+    if(error)console.error('GeoQuiz cloud save:',error.message);
+   }catch(e){console.error('GeoQuiz cloud save:',e)}
+  },500);
+ }
 };
-if(!Array.isArray(progress.completedQuestions)) progress.completedQuestions=[];
-
-function todayKey(){
-  const d=new Date();
-  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+const dayStr=d=>new Date(d.getTime()-d.getTimezoneOffset()*6e4).toISOString().slice(0,10);
+const today=()=>dayStr(new Date()),yest=()=>dayStr(new Date(Date.now()-864e5));
+const streakNow=()=>(S.last===today()||S.last===yest())?S.streak:0;
+const level=()=>Math.floor(S.xp/100)+1;
+const nm=()=>S.name||'explorador';
+function regen(){ // regeneración de vidas con el tiempo
+ if(S.hearts>=5){S.hts=Date.now();return}
+ const n=Math.floor((Date.now()-S.hts)/REGEN);
+ if(n>0){S.hearts=Math.min(5,S.hearts+n);S.hts=S.hearts>=5?Date.now():S.hts+n*REGEN;save()}
 }
-function saveProgress(){ localStorage.setItem("geoquizProgress",JSON.stringify(progress)); }
-function getLevel(){
-  if(progress.xp>=1000)return "Experto";
-  if(progress.xp>=600)return "Estratega";
-  if(progress.xp>=300)return "Analista";
-  if(progress.xp>=100)return "Aprendiz";
-  return "Explorador";
+function toast(m){const t=$('#toast');t.textContent=m;t.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(()=>t.style.display='none',2800)}
+
+/* ============ C. SONIDOS (AudioContext, sin archivos) ============ */
+let AC;
+function tone(f,t0,d,type='sine',v=.15){try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume();
+ const o=AC.createOscillator(),g=AC.createGain(),t=AC.currentTime+t0;o.type=type;o.frequency.value=f;g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+d)}catch(e){}}
+const sfx={ok(){tone(660,0,.12);tone(880,.12,.22)},bad(){tone(220,0,.18,'sawtooth',.1);tone(150,.18,.3,'sawtooth',.1)},win(){[523,659,784,1047].forEach((f,i)=>tone(f,i*.12,.28))},tap(){tone(440,0,.05)}};
+
+/* ============ D. MASCOTA JAGÜI: animaciones, burbujas, modal ============ */
+const mas=$('#mascot'),bub=$('#bubble');let bT,rT;
+function anim(c,ms=1000){mas.classList.remove('hop','shake','celebrate','wave','talk');void mas.offsetWidth;mas.classList.add(c);setTimeout(()=>mas.classList.remove(c),ms)}
+function hideB(){bub.classList.remove('show')}
+function say(txt,a='talk',force){ // muestra mensaje + animación
+ if(a)anim(a);if(S.muted&&!force)return;
+ $('#btext').textContent=txt;bub.classList.add('show');clearTimeout(bT);bT=setTimeout(hideB,9000)}
+function rotate(){clearTimeout(rT);rT=setTimeout(()=>{
+ const pool=[...FACTS,...TIPS,`💼 ¡Vas muy bien, ${nm()}! Sigue así`,`🔥 Racha de ${streakNow()} día(s). ¡No la pierdas, ${nm()}!`];
+ if(!document.hidden&&$('#s-welcome')&&!$('#s-lesson').classList.contains('active'))say(pool[Math.random()*pool.length|0]);rotate()},15000+Math.random()*15000)}
+$('#bclose').onclick=hideB;
+function setMute(){$('#mute').textContent=S.muted?'🔕':'🔔';$('#mute').setAttribute('aria-label',S.muted?'Activar mensajes de Jagüi':'Silenciar mensajes de Jagüi');if(S.muted)hideB();save()}
+$('#mute').onclick=()=>{S.muted=!S.muted;setMute();toast(S.muted?'Jagüi en silencio 🤫':'¡Jagüi activado!')};
+function fact(){$('#mText').textContent=FACTS[Math.random()*FACTS.length|0];anim('talk')}
+mas.onclick=()=>{fact();$('#modal').classList.add('open');$('#mClose').focus();sfx.tap()};
+$('#mMore').onclick=fact;$('#mClose').onclick=()=>{$('#modal').classList.remove('open');mas.focus()};
+$('#modal').onclick=e=>{if(e.target.id==='modal')$('#mClose').click()};
+
+/* ============ E. NAVEGACIÓN ============ */
+let cur='welcome';
+function show(id,msg){
+ cur=id;document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id==='s-'+id));
+ const inApp=id!=='welcome';$('#hud').classList.toggle('hidden',!inApp);$('#nav').classList.toggle('hidden',!inApp||id==='lesson'||id==='result');
+ document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.go===id));
+ if(id==='path')renderPath();if(id==='culture')renderCulture();if(id==='profile')renderProfile();if(id==='news')initNews();
+ hud();window.scrollTo({top:0,behavior:'smooth'});
+ const h=document.querySelector('#s-'+id+' h1,#s-'+id+' h2');if(h)h.focus({preventScroll:true});
+ const ctx={welcome:'¡Hola! Soy Jagüi 🐆 ¿Cómo te llamas?',path:`¡Hola, ${nm()}! Elige tu próxima unidad 🗺️`,culture:'🏛️ ¡Descubre las historias que dieron forma al mundo!',news:'📰 Mantente informado: ¡la geopolítica cambia cada día!',profile:'👤 ¡Mira cuánto has avanzado!',result:''};
+ say(msg||ctx[id]||'', 'wave');
 }
-function updateStats(){
-  const xp=document.getElementById("xp");
-  const streak=document.getElementById("streak");
-  const level=document.getElementById("playerLevel");
-  const levelText=document.getElementById("levelText");
-  const fill=document.getElementById("levelFill");
+document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>{sfx.tap();show(b.dataset.go)});
 
-  if(xp) xp.textContent=progress.xp;
-  if(streak) streak.textContent=progress.streak;
-  if(level) level.textContent=getLevel();
-
-  const levels=[
-    {name:"Explorador",min:0,next:100},
-    {name:"Aprendiz",min:100,next:300},
-    {name:"Analista",min:300,next:600},
-    {name:"Estratega",min:600,next:1000},
-    {name:"Experto",min:1000,next:1000}
-  ];
-  const currentLevel=levels.find((l,i)=>progress.xp<l.next || i===levels.length-1);
-  if(levelText){
-    levelText.textContent=currentLevel.name+" · "+progress.xp+" XP";
-  }
-  if(fill){
-    const range=currentLevel.next-currentLevel.min;
-    const pct=range===0 ? 100 : Math.min(100,Math.max(0,(progress.xp-currentLevel.min)/range*100));
-    fill.style.width=pct+"%";
-  }
-
-  const daily=document.getElementById("dailyBtn");
-  if(daily) daily.textContent=progress.dailyCompletedDate===todayKey()
-    ? "✅ Reto de hoy completado" : "🎯 Jugar reto de hoy";
-
-  const badges=document.querySelectorAll(".badge");
-  if(badges.length){
-    badges[0].style.opacity=progress.completedQuestions.length>=1?1:.35;
-    badges[1].style.opacity=progress.completedQuestions.length>=5?1:.35;
-    badges[2].style.opacity=progress.streak>=3?1:.35;
-  }
+/* ============ F. HUD ============ */
+function hud(){
+ regen();const done=UNITS.filter(u=>S.done[u.id]).length;
+ $('#pStreak').textContent='🔥 '+streakNow();$('#pXP').textContent=`⭐ ${S.xp} XP · Nv ${level()}`;
+ $('#pHearts').textContent='❤️ '+S.hearts+(S.hearts<5?' · '+fmt(REGEN-(Date.now()-S.hts)):'');$('#lh').textContent='❤️ '+S.hearts;
+ const p=Math.round(done/UNITS.length*100);$('#gProg').style.width=p+'%';$('#hud .gbar').setAttribute('aria-valuenow',p);
 }
-function questionId(q){return q.t+"|"+q.q;}
-function isCompleted(q){return progress.completedQuestions.includes(questionId(q));}
-function markCompleted(q){
-  const id=questionId(q);
-  if(!progress.completedQuestions.includes(id)){
-    progress.completedQuestions.push(id);
-    return true;
-  }
-  return false;
+const fmt=ms=>{ms=Math.max(0,ms);const s=Math.ceil(ms/1000);return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')};
+setInterval(()=>{if(cur!=='welcome')hud()},1000);
+$('#pHearts').onclick=()=>{if(S.hearts>=5)return toast('¡Tienes todas tus vidas! ❤️');
+ if(S.xp>=30){S.xp-=30;S.hearts++;S.hts=Date.now();save();hud();sfx.ok();say('¡Vida recuperada con 30 XP! 💪','hop')}else toast('Necesitas 30 XP o espera a que se regenere (10 min)')};
+
+/* ============ H. RUTA DE NIVELES ============ */
+const unlocked=i=>i===0||(UNITS[i].final?UNITS.filter(u=>!u.final).every(u=>S.done[u.id]):!!S.done[UNITS[i-1].id]);
+function renderPath(){
+ const firstOpen=UNITS.findIndex((u,i)=>!S.done[u.id]&&unlocked(i));
+ $('#pathBox').innerHTML=UNITS.map((u,i)=>{
+  const d=S.done[u.id],ok=unlocked(i),isCur=i===firstOpen,st=d?'done':isCur?'cur':ok?'cur':'lock';
+  const n=u.final?10:u.idx.length;
+  return `<div class="unit-h"><b>Unidad ${i+1}: ${esc(u.t)}</b><small>${n} preguntas</small></div>
+  <div class="path"><div class="node-wrap">${isCur?'<span class="start-tag">¡EMPIEZA!</span>':''}
+  <button class="node ${st}" data-i="${i}" aria-label="${esc(u.t)} — ${d?'completada':ok?'disponible':'bloqueada'}">${ok?u.ic:'🔒'}${d?'<span class="ck">✅</span>':''}<span class="st">${d?'⭐'.repeat(d)+'☆'.repeat(3-d):ok?'':'Bloqueada'}</span></button></div></div>`}).join('');
 }
-function awardXP(amount){progress.xp+=amount;saveProgress();updateStats();}
-function updateStreak(){
-  const today=todayKey();
-  if(progress.lastDay===today)return;
-  if(!progress.lastDay) progress.streak=1;
-  else{
-    const previous=new Date(progress.lastDay+"T00:00:00");
-    const currentDate=new Date(today+"T00:00:00");
-    const diff=Math.round((currentDate-previous)/86400000);
-    progress.streak=diff===1 ? progress.streak+1 : 1;
-  }
-  progress.lastDay=today;
+$('#pathBox').onclick=e=>{const b=e.target.closest('.node');if(!b)return;const i=+b.dataset.i;
+ if(!unlocked(i)){b.classList.remove('shake');void b.offsetWidth;b.classList.add('shake');sfx.bad();return say('🔒 Completa la unidad anterior para desbloquear esta.','shake')}
+ sfx.tap();startLesson(UNITS[i])};
+
+/* ============ I. LECCIÓN ============ */
+let L=null;
+function startLesson(u){
+ regen();if(S.hearts<=0){sfx.bad();say(`💔 Sin vidas, ${nm()}. Espera ${fmt(REGEN-(Date.now()-S.hts))} o canjea 30 XP tocando ❤️.`,'shake',true);return toast('Sin vidas 💔')}
+ const pool=u.final?shuffle(BANK).slice(0,10):u.idx.map(i=>BANK[i]);
+ L={u,i:0,ok:0,lost:0,ans:false,qs:shuffle(pool).map(q=>({...q,opts:shuffle(q.o.map((t,i)=>({t,ok:i===0})))}))};
+ show('lesson','¡Tú puedes, '+nm()+'! Lee con calma 🧠');renderQ();
+}
+function renderQ(){
+ const q=L.qs[L.i];L.ans=false;$('#fb').innerHTML='';$('#lbar').style.width=(L.i/L.qs.length*100)+'%';
+ $('#qic').textContent=q.ic;$('#qt').textContent=q.t+` · ${L.i+1}/${L.qs.length}`;$('#question').textContent=q.q;
+ $('#opts').innerHTML=q.opts.map((o,i)=>`<button class="opt" data-i="${i}"><kbd>${i+1}</kbd><span>${esc(o.t)}</span></button>`).join('');
+ $('#question').focus({preventScroll:true});
+}
+function answer(i){
+ if(!L||L.ans)return;L.ans=true;const q=L.qs[L.i],good=q.opts[i].ok;
+ document.querySelectorAll('.opt').forEach((b,k)=>{b.disabled=true;if(q.opts[k].ok)b.classList.add('ok');else if(k===i)b.classList.add('bad')});
+ if(good){L.ok++;sfx.ok();say(['¡Excelente, '+nm()+'! 🌟','¡Así se negocia a nivel global! 💼','¡Diplomacia de alto nivel! 🤝','¡Imparable! 🚀'][Math.random()*4|0],'hop')}
+ else{L.lost++;S.hearts--;if(S.hearts===4)S.hts=Date.now();save();sfx.bad();hud();say(['Los mejores analistas aprenden de sus errores 📚','Lee la explicación, ¡es oro puro! 💡','¡Ánimo, '+nm()+'! Aún puedes remontar 💪'][Math.random()*3|0],'shake')}
+ const last=L.i===L.qs.length-1,dead=S.hearts<=0;
+ $('#fb').innerHTML=`<div class="fb ${good?'ok':'bad'}"><h3>${good?'✅ ¡Correcto!':'❌ Incorrecto'}</h3><p>${esc(q.e)}</p><button class="btn ${good?'green':'gold'} wide" id="nx">${dead?'Ver resultado':last?'Finalizar':'Continuar'}</button></div>`;
+ $('#nx').focus();$('#nx').onclick=()=>{if(dead)return finish(false);L.i++;L.i>=L.qs.length?finish(true):renderQ()};
+}
+$('#opts').onclick=e=>{const b=e.target.closest('.opt');if(b)answer(+b.dataset.i)};
+$('#lx').onclick=()=>{if(confirm('¿Salir de la lección? Perderás el progreso de esta práctica.'))show('path','¡Te espero! Cada práctica cuenta 💪')};
+
+/* ============ J. RESULTADOS, XP, RACHA E INSIGNIAS ============ */
+const BADGES=[{id:'b1',ic:'🥇',t:'Primer paso',f:()=>Object.keys(S.done).length>=1},{id:'b2',ic:'🔥',t:'En racha (3 días)',f:()=>streakNow()>=3},{id:'b3',ic:'🧠',t:'Lección perfecta',f:()=>S.perfect>=1},{id:'b4',ic:'🕊️',t:'Diplomático (3 unidades)',f:()=>Object.keys(S.done).length>=3},{id:'b5',ic:'💰',t:'300 XP',f:()=>S.xp>=300},{id:'b6',ic:'🌍',t:'Globalista (todo)',f:()=>UNITS.every(u=>S.done[u.id])}];
+function finish(win){
+ const total=L.qs.length,acc=L.ok/total,oldLv=level();let xp=0,newB=[];
+ if(win){
+  const stars=acc===1?3:acc>=.7?2:1;xp=L.ok*10+(L.lost===0?20:0)+(L.u.final?30:0);S.xp+=xp;S.done[L.u.id]=Math.max(S.done[L.u.id]||0,stars);
+  if(L.lost===0)S.perfect++;S.hearts=Math.min(5,S.hearts+1);
+  if(S.last!==today()){S.streak=S.last===yest()?S.streak+1:1;S.last=today()}
+  BADGES.forEach(b=>{if(!S.badges.includes(b.id)&&b.f()){S.badges.push(b.id);newB.push(b)}});
+ }
+ save();hud();const up=level()>oldLv,stars=win?S.done[L.u.id]:0;
+ $('#resBox').innerHTML=`<div class="big">${win?(acc===1?'🏆':'🎉'):'💔'}</div><h2>${win?'¡Unidad completada!':'¡Te quedaste sin vidas!'}</h2>
+  <p class="muted" style="margin-top:8px">${win?esc(L.u.t):'Repasa la teoría y vuelve a intentarlo cuando recuperes vidas.'}</p>
+  <div style="font-size:34px;margin:10px">${win?'⭐'.repeat(stars)+'☆'.repeat(3-stars):''}</div>
+  <div class="stats"><div class="stat"><b>+${xp}</b>XP</div><div class="stat"><b>${Math.round(acc*100)}%</b>precisión</div><div class="stat"><b>🔥 ${streakNow()}</b>racha</div></div>
+  ${up?`<p class="gold" style="font-weight:800">⬆️ ¡Subiste al nivel ${level()}!</p>`:''}${newB.map(b=>`<p class="gold">${b.ic} Insignia: ${b.t}</p>`).join('')}
+  <div style="display:grid;gap:10px;margin-top:16px"><button class="btn gold" id="rC">CONTINUAR</button><button class="btn" id="rR">Repetir unidad</button></div>`;
+ const u=L.u;show('result');$('#rC').focus();$('#rC').onclick=()=>show('path');$('#rR').onclick=()=>startLesson(u);
+ if(win){sfx.win();say(newB.length?`🏅 ¡Nueva insignia, ${nm()}: ${newB[0].t}!`:up?`⬆️ ¡Nivel ${level()}, ${nm()}! ¡Increíble!`:`🎉 ¡Unidad completada, ${nm()}! +${xp} XP`,'celebrate',true)}
+ else{sfx.bad();say('💔 Sin vidas... ¡pero volverás más fuerte!','shake',true)}
 }
 
+/* ============ K. PERFIL Y RANKING SOCIAL (liga local simulada) ============ */
+function renderProfile(){
+ const bots=[{n:'Valentina',a:'👩‍💼',x:420},{n:'Andrés',a:'🦅',x:310},{n:'Camila',a:'🧭',x:180},{n:'Mateo',a:'🚀',x:90}];
+ const rank=[...bots,{n:S.name||'Tú',a:S.avatar,x:S.xp,me:1}].sort((a,b)=>b.x-a.x);
+ $('#profBox').innerHTML=`<div style="text-align:center"><div style="font-size:64px">${esc(S.avatar)}</div><h2 tabindex="-1">${esc(S.name)}</h2><p class="muted">Nivel ${level()} · ${S.xp} XP</p></div>
+ <div class="stats"><div class="stat"><b>🔥 ${streakNow()}</b>racha</div><div class="stat"><b>❤️ ${S.hearts}</b>vidas</div><div class="stat"><b>${UNITS.filter(u=>S.done[u.id]).length}/${UNITS.length}</b>unidades</div></div>
+ <h3 class="gold">Insignias</h3><div class="badges">${BADGES.map(b=>`<div class="badge${S.badges.includes(b.id)?' on':''}"><span>${b.ic}</span>${b.t}</div>`).join('')}</div>
+ <h3 class="gold">Liga semanal (simulada)</h3><ol class="rank">${rank.map((r,i)=>`<li class="${r.me?'me':''}"><b>${i+1}</b><span>${esc(r.a)}</span>${esc(r.n)}${r.me?' (tú)':''}<span class="xp">${r.x} XP</span></li>`).join('')}</ol>
+ <div class="field" style="margin-top:18px"><label for="en">Cambiar nombre</label><div style="display:flex;gap:8px"><input id="en" maxlength="18" value="${esc(S.name)}"><button class="btn" id="sn">Guardar</button></div></div>
+ <button class="btn wide" id="rs" style="background:var(--red);border-bottom-color:#7f1d1d;margin-top:8px">Reiniciar progreso</button>`;
+ $('#sn').onclick=()=>{S.name=$('#en').value.trim()||S.name;save();renderProfile();say(`¡Mucho gusto, ${nm()}! 😄`,'wave')};
+ $('#rs').onclick=()=>{if(confirm('¿Borrar todo tu progreso?')){const m=S.muted;S={...fresh(),friends:S.friends,inc:S.inc,out:S.out,muted:m,name:S.name,avatar:S.avatar};save();show('path','¡Empezamos de nuevo! 🚀')}};
+}
 
-const home = document.getElementById("home");
-const quiz = document.getElementById("quiz");
-const result = document.getElementById("result");
-const selectedText = document.getElementById("selectedText");
+/* ============ L. NOTICIAS (RSS reales vía rss2json → proxy CORS → Riad News) ============ */
+const FEEDS=[{n:'Portafolio',u:'https://www.portafolio.co/rss.xml'},{n:'BBC Mundo',u:'https://feeds.bbci.co.uk/mundo/rss.xml'},{n:'DW Español',u:'https://rss.dw.com/xml/rss-sp-all'},{n:'El País · Economía',u:'https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/economia/portada'}];
+const strip=h=>(new DOMParser().parseFromString(h||'','text/html').body.textContent||'').trim();
+const imgIn=h=>{const m=/<img[^>]+src=["']([^"']+)/i.exec(h||'');return m?m[1]:''};
+async function viaRss2Json(f){const j=await(await fetch('https://api.rss2json.com/v1/api.json?rss_url='+encodeURIComponent(f.u))).json();if(j.status!=='ok')throw 0;
+ return j.items.map(i=>({title:i.title,link:i.link,src:f.n,date:i.pubDate,sum:strip(i.description||i.content).slice(0,170),img:i.thumbnail||(i.enclosure&&i.enclosure.link)||imgIn(i.content||i.description)}))}
+async function viaProxy(f){const x=new DOMParser().parseFromString(await(await fetch('https://api.allorigins.win/raw?url='+encodeURIComponent(f.u))).text(),'text/xml');
+ return[...x.querySelectorAll('item')].slice(0,10).map(it=>{const g=t=>(it.querySelector(t)||{}).textContent||'',m=it.getElementsByTagName('media:content')[0]||it.querySelector('enclosure'),d=g('description');
+  return{title:g('title'),link:g('link'),src:f.n,date:g('pubDate'),sum:strip(d).slice(0,170),img:(m&&m.getAttribute('url'))||imgIn(d)}})}
+async function viaRiad(){const j=await(await fetch('https://riad-news-api.vercel.app/api/news')).json();const a=Array.isArray(j)?j:(j.articles||j.news||j.data||j.items||[]);
+ return a.map(i=>({title:i.title,link:i.link||i.url,src:i.source||i.publisher||'Riad News',date:i.pubDate||i.published||i.publishedAt||i.date,sum:strip(i.description||i.summary||i.contentSnippet||'').slice(0,170),img:i.image||i.thumbnail||i.urlToImage||''}))}
+async function viaCors(f){const x=new DOMParser().parseFromString(await(await fetch('https://corsproxy.io/?'+encodeURIComponent(f.u))).text(),'text/xml');
+ return[...x.querySelectorAll('item')].slice(0,10).map(it=>{const g=t=>(it.querySelector(t)||{}).textContent||'',m=it.getElementsByTagName('media:content')[0]||it.querySelector('enclosure'),d=g('description');
+  return{title:g('title'),link:g('link'),src:f.n,date:g('pubDate'),sum:strip(d).slice(0,170),img:(m&&m.getAttribute('url'))||imgIn(d)}})}
+const BACKUP=()=>{const d=new Date().toISOString();return[
+ {title:'Geopolítica y economía mundial: últimas noticias',link:'https://www.bbc.com/mundo',src:'BBC Mundo (respaldo)',date:d,sum:'No pudimos conectar con el proxy de noticias. Abre la portada para leer las notas del día.',img:''},
+ {title:'Negocios y economía en Colombia y el mundo',link:'https://www.portafolio.co',src:'Portafolio (respaldo)',date:d,sum:'Portada de Portafolio con noticias de economía, comercio exterior y empresas.',img:''},
+ {title:'Actualidad internacional en español',link:'https://www.dw.com/es',src:'DW Español (respaldo)',date:d,sum:'Cobertura de política internacional, economía y comercio global.',img:''},
+ {title:'Economía: portada de El País',link:'https://elpais.com/economia/',src:'El País (respaldo)',date:d,sum:'Mercados, empresas y política económica internacional.',img:''}]};
+let newsAt=0;
+async function loadNews(force){
+ if(!force&&Date.now()-newsAt<6e5&&$('#newsBox').children.length)return;
+ $('#newsBox').innerHTML='<div class="sk"></div>'.repeat(5);$('#nStat').textContent='Cargando noticias…';
+ const run=async fn=>(await Promise.allSettled(FEEDS.map(fn))).flatMap(r=>r.status==='fulfilled'?r.value.slice(0,8):[]);
+ let items=await run(viaRss2Json);if(!items.length)items=await run(viaProxy);if(!items.length)items=await run(viaCors);if(!items.length){try{items=await viaRiad()}catch(e){}}let usedBackup=false;if(!items.length){items=BACKUP();usedBackup=true}
+ items=items.filter(i=>i.title&&/^https?:\/\//.test(i.link||'')).sort((a,b)=>(Date.parse(b.date)||0)-(Date.parse(a.date)||0)).slice(0,24);
+ if(!items.length){$('#nStat').textContent='';$('#newsBox').innerHTML='<div class="card">😕 No se pudieron cargar las noticias (revisa tu conexión o abre el archivo desde un navegador con internet). <p style="margin-top:10px"><a class="link" target="_blank" rel="noopener" href="https://www.bbc.com/mundo/topics/cj1g9j8wzgxt">Ir a BBC Mundo ↗</a></p></div>';return}
+ newsAt=Date.now();$('#nStat').textContent=usedBackup?'⚠️ Sin conexión a las fuentes: enlaces de respaldo':items.length+' notas recientes';
+ $('#newsBox').innerHTML=items.map(i=>{const d=new Date(i.date),ds=isNaN(d)?'':d.toLocaleDateString('es-CO',{day:'numeric',month:'short',year:'numeric'});
+  const im=/^https:\/\//.test(i.img||'')?`style="background-image:url('${esc(i.img).replace(/'/g,'%27')}')"`:'';
+  return`<article class="ncard"><div class="im" ${im}>${im?'':'🌐'}</div><div class="bd"><div class="meta">${esc(i.src)} · ${ds}</div><h3>${esc(i.title)}</h3><p>${esc(i.sum)}</p><a class="link" href="${esc(i.link)}" target="_blank" rel="noopener noreferrer">Leer más ↗</a></div></article>`}).join('');
+}
+$('#nRef').onclick=()=>loadNews(true);
 
-document.querySelectorAll(".topic").forEach(button => {
-  button.addEventListener("click", () => {
-    document.querySelectorAll(".topic").forEach(b => b.classList.remove("selected"));
-    button.classList.add("selected");
-    selectedTopic = button.dataset.topic;
-    selectedText.textContent = "Tema seleccionado: " + selectedTopic;
-  });
+/* ============ M. VIDEOS (YouTube embebido) ============
+   Para cambiar videos: edita VIDEOS con el ID de YouTube (lo que va tras v= en la URL) */
+const VIDEOS=[
+ {id:'68z7tYZJzeo',t:'Geopolítica y mercados: el nuevo orden mundial'},
+ {id:'Tx6fZW6-ZYw',t:'Radar: geopolítica, macro y mercados (Ormuz)'},
+ {id:'hbQxdEdiveE',t:'Mercados globales en tensión: Asia y Occidente'},
+ {id:'2apVAb3MAtQ',t:'Repaso a la geopolítica mundial región por región'}
+];
+const CH=[['Economía y Desarrollo','economía y desarrollo geopolítica'],['Negocios TV','Negocios TV geopolítica'],['Mente Global','Mente Global geopolítica mercados']];
+function renderVideos(){
+ $('#vidPane').innerHTML=`<div class="player" id="pl"></div><h3 id="vt" style="margin:10px 0 0"></h3><p class="muted" style="font-size:13px">Si un video no carga, ábrelo en YouTube: <a class="link" id="vy" target="_blank" rel="noopener" href="#">ver ↗</a></p>
+ <div class="chips">${CH.map(c=>`<a class="chip" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=${encodeURIComponent(c[1])}">▶ ${c[0]}</a>`).join('')}</div>
+ <div class="vgrid">${VIDEOS.map((v,i)=>`<button class="vcard" data-i="${i}"><div class="th" style="background-image:url('https://i.ytimg.com/vi/${v.id}/hqdefault.jpg')">▶️</div><div class="t">${esc(v.t)}</div></button>`).join('')}</div>`;
+ playV(0,false);
+}
+function playV(i,auto){const v=VIDEOS[i];
+ $('#pl').innerHTML=auto?`<iframe src="https://www.youtube.com/embed/${v.id}?autoplay=1&rel=0" title="${esc(v.t)}" allow="accelerometer; autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`:
+ `<button style="position:absolute;inset:0;width:100%;border:0;background:url('https://i.ytimg.com/vi/${v.id}/hqdefault.jpg') center/cover;font-size:70px;text-shadow:0 2px 10px #000" aria-label="Reproducir: ${esc(v.t)}" id="bigPlay">▶️</button>`;
+ $('#vt').textContent=v.t;$('#vy').href='https://www.youtube.com/watch?v='+v.id;
+ document.querySelectorAll('.vcard').forEach((c,k)=>c.classList.toggle('on',k===i));
+ const bp=$('#bigPlay');if(bp)bp.onclick=()=>playV(i,true);
+}
+$('#vidPane').onclick=e=>{const c=e.target.closest('.vcard');if(c){playV(+c.dataset.i,true);sfx.tap();window.scrollTo({top:0,behavior:'smooth'})}};
+function tab(v){$('#tN').classList.toggle('on',!v);$('#tV').classList.toggle('on',v);$('#newsPane').classList.toggle('hidden',v);$('#vidPane').classList.toggle('hidden',!v);
+ if(v){if(!$('#vidPane').children.length)renderVideos();say('🎥 Dale play y aprende viendo análisis reales.','wave')}else $('#vidPane').innerHTML='';}
+$('#tN').onclick=()=>tab(false);$('#tV').onclick=()=>tab(true);
+function initNews(){tab(false);loadNews()}
+
+/* ============ N. TECLADO Y ARRANQUE ============ */
+document.addEventListener('keydown',e=>{
+ if(e.key==='Escape'){if($('#modal').classList.contains('open'))$('#mClose').click();return}
+ if(cur!=='lesson'||!L||/INPUT|TEXTAREA/.test(e.target.tagName))return;
+ if(/^[1-4]$/.test(e.key))answer(+e.key-1);
+ else if(e.key==='Enter'&&L.ans&&e.target.tagName!=='BUTTON'){const n=$('#nx');if(n)n.click()}
 });
+setMute();rotate();
 
-document.getElementById("start").addEventListener("click", () => {
-  isDaily=false;
-  filtered=selectedTopic ? questions.filter(question=>question.t===selectedTopic) : questions;
-  beginGame();
-});
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+/* ============ GeoQuiz v3 · cuentas, navegación, Colombia, celebración, amigos ============ */
+const NAME='GeoQuiz',USERS_K='GeoQuiz_users',SESS_K='GeoQuiz_session',ACC_K='GeoQuiz_acc_';
+const rd=(k,d)=>{try{const v=JSON.parse(localStorage.getItem(k));return v==null?d:v}catch(e){return d}};
+const wr=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+const hp=s=>{let h=5381;for(const c of String(s))h=((h*33)^c.charCodeAt(0))>>>0;return h.toString(36)}; // contraseña simulada
+const kk=n=>String(n).toLowerCase(),lv=x=>Math.floor(x/100)+1,arr=n=>(S[n]=S[n]||[]);
+const SAMPLE=[{n:'Valentina',a:'👩‍💼',x:420},{n:'Andrés',a:'🦅',x:310},{n:'Camila',a:'🧭',x:180},{n:'Mateo',a:'🚀',x:90},{n:'Sofía',a:'🌎',x:260},{n:'Santiago',a:'⚓',x:140}];
 
-document.getElementById("dailyBtn").addEventListener("click",()=>{
-  if(progress.dailyCompletedDate===todayKey()){
-    alert("🎯 Ya completaste el Reto del Día.\n\nVuelve mañana para un nuevo reto.");
-    return;
+/* ---------- Preguntas: 🇨🇴 Colombia en el Mundo (la 1ª opción es la correcta; se baraja al jugar) ---------- */
+const COL0=BANK.length;
+BANK.push(
+ {t:"Colombia en el Mundo",ic:"📜",q:"¿Qué mecanismo de protección inmediata de derechos creó la Constitución Política de 1991?",o:["La acción de tutela","El voto obligatorio","El servicio militar","La reelección presidencial"],e:"La Constitución de 1991 definió a Colombia como Estado social de derecho y creó la acción de tutela, junto con la Corte Constitucional y mayor apertura económica."},
+ {t:"Colombia en el Mundo",ic:"☕",q:"¿Qué organización gremial administra el Fondo Nacional del Café de Colombia?",o:["Federación Nacional de Cafeteros","Asocolflores","Analdex","Fedegán"],e:"Fundada en 1927, la Federación Nacional de Cafeteros representa a cientos de miles de familias caficultoras y promueve el café colombiano en el mundo."},
+ {t:"Colombia en el Mundo",ic:"🌄",q:"El Paisaje Cultural Cafetero de Colombia fue declarado Patrimonio Mundial por la UNESCO en…",o:["2011","1991","2020","1975"],e:"El reconocimiento de 2011 refuerza la marca país del café: identidad cultural, turismo y valor agregado para las exportaciones."},
+ {t:"Colombia en el Mundo",ic:"🤝",q:"¿En qué año entró en vigor el TLC entre Colombia y Estados Unidos?",o:["2012","2006","2000","2018"],e:"Se firmó en 2006 y entró en vigor el 15 de mayo de 2012. Eliminó aranceles sobre buena parte del comercio bilateral de bienes."},
+ {t:"Colombia en el Mundo",ic:"🇪🇺",q:"¿Con qué bloque firmó Colombia un acuerdo comercial multipartes, aplicado desde 2013?",o:["La Unión Europea","El Mercosur","La ASEAN","La Unión Africana"],e:"El acuerdo con la UE (también con Perú y Ecuador) abrió mercados para café, flores, banano y otros productos colombianos."},
+ {t:"Colombia en el Mundo",ic:"🏔️",q:"La Comunidad Andina (CAN) agrupa a Colombia con…",o:["Bolivia, Ecuador y Perú","Chile, Argentina y Uruguay","Brasil, Paraguay y Venezuela","México, Panamá y Cuba"],e:"La CAN es una de las integraciones más antiguas de la región (1969) y mantiene libre comercio de bienes entre sus miembros."},
+ {t:"Colombia en el Mundo",ic:"🛡️",q:"¿Cómo se llamó el programa de cooperación entre Colombia y EE. UU. lanzado hacia 1999-2000 contra el narcotráfico?",o:["Plan Colombia","Alianza para el Progreso","Plan Marshall","Operación Cóndor"],e:"El Plan Colombia combinó apoyo militar, antidrogas y social. Marcó la relación bilateral y la política de seguridad de las siguientes décadas."},
+ {t:"Colombia en el Mundo",ic:"🕊️",q:"¿Dónde se negoció principalmente el Acuerdo de Paz entre el Gobierno colombiano y las FARC (2016)?",o:["La Habana, Cuba","Ginebra, Suiza","Oslo, Noruega","Caracas, Venezuela"],e:"Las negociaciones se desarrollaron en La Habana, con Cuba y Noruega como garantes. El acuerdo final se firmó en noviembre de 2016 en Bogotá."},
+ {t:"Colombia en el Mundo",ic:"🚢",q:"¿Qué conecta el Canal del Dique?",o:["El río Magdalena con la bahía de Cartagena","El Atlántico con el Pacífico","El río Cauca con el Orinoco","Santa Marta con Barranquilla"],e:"El Canal del Dique es una vía fluvial clave para la logística del río Magdalena y su conexión con el puerto de Cartagena, aunque exige gestión ambiental."},
+ {t:"Colombia en el Mundo",ic:"⚓",q:"¿Cuál es el principal puerto colombiano sobre el océano Pacífico?",o:["Buenaventura","Cartagena","Barranquilla","Santa Marta"],e:"Buenaventura conecta a Colombia con Asia-Pacífico y es clave para aprovechar acuerdos como la Alianza del Pacífico."},
+ {t:"Colombia en el Mundo",ic:"🦜",q:"¿Por qué la biodiversidad es un recurso estratégico para Colombia?",o:["Es de los países con más especies de aves y plantas del mundo, base de bioeconomía y turismo","Porque no tiene ecosistemas diversos","Porque solo exporta minerales","Porque no hay selvas ni páramos"],e:"Amazonía, Pacífico, Andes y Caribe ofrecen bioprospección, ecoturismo, servicios ambientales y poder blando en las negociaciones climáticas."},
+ {t:"Colombia en el Mundo",ic:"🛢️",q:"¿Cuál es la mayor empresa petrolera de Colombia, de propiedad mayoritariamente estatal?",o:["Ecopetrol","Pemex","Petrobras","PDVSA"],e:"Ecopetrol es clave para ingresos fiscales y exportaciones; el petróleo y el carbón han concentrado buena parte de las ventas externas del país."},
+ {t:"Colombia en el Mundo",ic:"🖼️",w:"Gabriel_García_Márquez",h:"Premio Nobel de Literatura 1982, autor de «Cien años de soledad».",q:"¿Quién es esta persona?",o:["Gabriel García Márquez","Fernando Botero","Álvaro Mutis","Jorge Isaacs"],e:"Gabriel García Márquez (Aracataca, 1927) ganó el Nobel de Literatura en 1982. El realismo mágico es una de las grandes proyecciones culturales de Colombia (poder blando)."},
+ {t:"Colombia en el Mundo",ic:"🖼️",w:"Simón_Bolívar",h:"El Libertador; impulsó la Gran Colombia (1819).",q:"¿Quién es esta persona?",o:["Simón Bolívar","Francisco de Paula Santander","Antonio Nariño","Francisco de Miranda"],e:"Simón Bolívar lideró la independencia de varios países y soñó con una unión continental: la Gran Colombia fue un primer intento de integración."},
+ {t:"Colombia en el Mundo",ic:"🖼️",w:"Juan_Manuel_Santos",h:"Presidente de Colombia 2010-2018, Premio Nobel de la Paz 2016.",q:"¿Quién es esta persona?",o:["Juan Manuel Santos","Álvaro Uribe Vélez","Iván Duque","César Gaviria"],e:"Juan Manuel Santos recibió el Nobel de la Paz 2016 por impulsar el acuerdo con las FARC; también fue ministro de Comercio Exterior y de Hacienda."},
+ {t:"Colombia en el Mundo",ic:"🖼️",w:"Fernando_Botero",h:"Pintor y escultor de figuras voluminosas, el artista colombiano más conocido del mundo.",q:"¿Quién es esta persona?",o:["Fernando Botero","Alejandro Obregón","Débora Arango","Édgar Negret"],e:"Fernando Botero (Medellín, 1932-2023) llevó el «boterismo» a plazas y museos del mundo: un caso de marca país a través del arte."},
+ {t:"Colombia en el Mundo",ic:"🖼️",w:"Francisco_de_Paula_Santander",h:"Llamado «el Hombre de las Leyes»; vicepresidente de la Gran Colombia.",q:"¿Quién es esta persona?",o:["Francisco de Paula Santander","Simón Bolívar","José Hilario López","Rafael Núñez"],e:"Francisco de Paula Santander impulsó la institucionalidad y las leyes de la naciente república; su legado está muy presente en la cultura política colombiana."}
+);
+UNITS.splice(UNITS.findIndex(u=>u.final),0,{id:'u7',t:'🇨🇴 Colombia en el Mundo',ic:'☕',idx:BANK.map((_,i)=>i).filter(i=>i>=COL0)});
+
+/* ---------- Sonidos extra ---------- */
+sfx.celebrate=n=>{[523,659,784,1047,1319].slice(0,Math.min(5,2+n)).forEach((f,i)=>tone(f,i*.07,.2,'triangle',.14))};
+
+/* ---------- Celebración: confeti + serpentinas (canvas) y destellos ---------- */
+const cv=document.createElement('canvas');cv.id='cf';cv.setAttribute('aria-hidden','true');document.body.appendChild(cv);
+const cx=cv.getContext('2d');let P=[],raf=0;
+const rs=()=>{cv.width=innerWidth;cv.height=innerHeight};rs();addEventListener('resize',rs);
+function confetti(n=90,big){
+ if(matchMedia('(prefers-reduced-motion: reduce)').matches)n=Math.min(n,15);
+ const cols=['#F59E0B','#D4AF37','#10B981','#3B82F6','#F8FAFC','#EF4444','#A855F7'];
+ for(let i=0;i<Math.min(n,160);i++){const a=-Math.PI/2+(Math.random()-.5)*(big?2.6:1.6),sp=(big?14:10)*(.5+Math.random());
+  P.push({x:innerWidth/2+(Math.random()-.5)*(big?innerWidth*.6:80),y:innerHeight*(big?.55:.45),vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,w:6+Math.random()*6,h:8+Math.random()*8,r:Math.random()*6,vr:(Math.random()-.5)*.4,c:cols[Math.random()*cols.length|0],life:0,rib:i%6===0})}
+ if(P.length>400)P.splice(0,P.length-400);
+ if(!raf)raf=requestAnimationFrame(tick)}
+function tick(){cx.clearRect(0,0,cv.width,cv.height);
+ P=P.filter(p=>{p.life++;p.vy+=.35;p.vx*=.985;p.x+=p.vx+(p.rib?Math.sin(p.life*.25)*3:0);p.y+=p.vy;p.r+=p.vr;
+  cx.save();cx.translate(p.x,p.y);cx.rotate(p.rib?Math.sin(p.life*.2)*.6:p.r);cx.fillStyle=p.c;
+  if(p.rib)cx.fillRect(-1.5,0,3,p.h*3.5);else cx.fillRect(-p.w/2,-p.h/2,p.w,p.h*Math.abs(Math.cos(p.r*2))+2);
+  cx.restore();return p.y<cv.height+40&&p.life<260});
+ raf=P.length?requestAnimationFrame(tick):0;if(!raf)cx.clearRect(0,0,cv.width,cv.height)}
+function burst(list,n=5){for(let i=0;i<n;i++){const e=document.createElement('span');e.className='fl';e.textContent=list[Math.random()*list.length|0];
+ e.style.left=(15+Math.random()*70)+'vw';e.style.top=(35+Math.random()*25)+'vh';e.style.fontSize=(24+Math.random()*22)+'px';e.style.setProperty('--dx',(Math.random()*120-60)+'px');
+ document.body.appendChild(e);setTimeout(()=>e.remove(),1500)}}
+const pulse=s=>{const e=$(s);if(e){e.classList.remove('bump');void e.offsetWidth;e.classList.add('bump')}};
+
+/* ---------- Lección: imagen (Wikipedia/Wikimedia), bonus, feedback ---------- */
+const IMG={};
+async function loadImg(q){
+ const box=$('#qimg');box.innerHTML='';if(!q.w)return;box.innerHTML='<div class="sk" style="height:200px"></div>';
+ const fb=()=>{if(L&&L.qs[L.i]===q)box.innerHTML=`<div class="hint">🖼️ No se pudo cargar la imagen. Pista: ${esc(q.h)}</div>`};
+ try{let u=IMG[q.w];
+  if(!u){const j=await(await fetch('https://es.wikipedia.org/api/rest_v1/page/summary/'+encodeURIComponent(q.w))).json();u=j.thumbnail&&j.thumbnail.source;IMG[q.w]=u}
+  if(!u)throw 0;const im=new Image();im.referrerPolicy='no-referrer';im.className='portrait';im.alt='Retrato de un personaje importante de Colombia';
+  im.onload=()=>{if(L&&L.qs[L.i]===q)box.replaceChildren(im)};im.onerror=fb;im.src=u}catch(e){fb()}}
+renderQ=function(){
+ const q=L.qs[L.i];L.ans=false;L.t0=Date.now();$('#fb').innerHTML='';$('#lbar').style.width=(L.i/L.qs.length*100)+'%';
+ $('#qic').textContent=q.ic;$('#qt').textContent=q.t+` · ${L.i+1}/${L.qs.length}`;$('#question').textContent=q.q;
+ $('#opts').innerHTML=q.opts.map((o,i)=>`<button class="opt" data-i="${i}"><kbd>${i+1}</kbd><span>${esc(o.t)}</span></button>`).join('');
+ $('#question').focus({preventScroll:true});loadImg(q)};
+answer=function(i){
+ if(!L||L.ans)return;L.ans=true;const q=L.qs[L.i],good=q.opts[i].ok;
+ document.querySelectorAll('.opt').forEach((b,k)=>{b.disabled=true;if(q.opts[k].ok)b.classList.add('ok');else if(k===i)b.classList.add('bad')});
+ let extra='';
+ if(good){L.ok++;L.combo=(L.combo||0)+1;S.right=(S.right||0)+1;
+  const fast=(Date.now()-L.t0)/1000<6?5:0,st=Math.min(L.combo-1,5)*2,bn=fast+st;
+  if(bn){S.xp+=bn;L.bonus=(L.bonus||0)+bn}
+  sfx.celebrate(L.combo);confetti(L.combo>=3?110:70,L.combo>=3);burst(['⭐','🏆','🥇','✨','🎉'],L.combo>=3?9:5);
+  try{if(navigator.vibrate)navigator.vibrate(L.combo>=3?[30,40,30]:25)}catch(e){}
+  const m=[`¡Brutal, ${nm()}! 🔥`,`¡Eres una máquina, ${nm()}! 🏆`,`¡Imparable! 🚀`,`¡Diplomacia de alto nivel! 🤝`,`¡Crack, ${nm()}! ⭐`];
+  say(L.combo>=3?`🔥 ¡Racha de ${L.combo}! ¡Eres leyenda, ${nm()}! 🥇`:m[Math.random()*m.length|0],'hop');
+  extra=bn?`<div class="bonus">⚡ +${bn} XP de bonus${fast?' · velocidad':''}${st?' · racha x'+L.combo:''}</div>`:'';
+  save();hud();pulse('#pXP')}
+ else{L.lost++;L.combo=0;S.wrong=(S.wrong||0)+1;S.hearts--;if(S.hearts===4)S.hts=Date.now();save();sfx.bad();hud();
+  say(['Casi lo logras 💪 Lee la explicación y sigue','Los mejores analistas aprenden de sus errores 📚','¡Ánimo, '+nm()+'! Aún puedes remontar 🚀'][Math.random()*3|0],'shake')}
+ const last=L.i===L.qs.length-1,dead=S.hearts<=0;
+ $('#fb').innerHTML=`<div class="fb ${good?'ok':'bad'}"><h3>${good?'✅ ¡Correcto!':'❌ Casi, ¡tú puedes!'}</h3>${extra}<p>${esc(q.e)}</p><button class="btn ${good?'green':'gold'} wide" id="nx">${dead?'Ver resultado':last?'Finalizar':'Continuar'}</button></div>`;
+ $('#nx').focus();$('#nx').onclick=()=>{if(dead)return finish(false);L.i++;L.i>=L.qs.length?finish(true):renderQ()}};
+const _fin=finish;
+finish=function(w){_fin(w);if(w){confetti(160,true);burst(['🏆','🥇','⭐','🏅','🎉'],10);sfx.win()}};
+
+/* ---------- Salida con confirmación de Jagüi ---------- */
+function askExit(){
+ $('#qmImg').src=$('#mimg').src;$('#qmT').textContent=`¿Seguro que quieres salir, ${nm()}? Perderás el progreso de esta partida 😢`;
+ $('#qm').classList.add('open');anim('shake');$('#qmN').focus()}
+const closeQm=()=>$('#qm').classList.remove('open');
+$('#qmN').onclick=closeQm;
+$('#qmY').onclick=()=>{closeQm();L=null;save();show('welcome','Tu progreso guardado te espera, '+nm()+' 🐆')};
+$('#qm').onclick=e=>{if(e.target.id==='qm')closeQm()};
+$('#lx').onclick=askExit;$('#lhome').onclick=askExit;
+$('#brand').onclick=()=>cur==='lesson'?askExit():show('welcome');
+addEventListener('keydown',e=>{if(e.key==='Escape'&&$('#qm').classList.contains('open'))closeQm()});
+document.querySelectorAll('.screen:not(#s-welcome):not(#s-lesson)').forEach(s=>{
+ const d=document.createElement('div');d.className='topbar';
+ d.innerHTML=`<button class="homebtn" aria-label="Volver al inicio de GeoQuiz">🏠 GeoQuiz</button><button class="xbtn" aria-label="Cerrar esta pantalla">✕</button>`;s.prepend(d)});
+document.addEventListener('click',e=>{const h=e.target.closest('.topbar .homebtn'),x=e.target.closest('.topbar .xbtn');if(!h&&!x)return;
+ const id=e.target.closest('.screen').id.slice(2);sfx.tap();if(h||id==='path')show('welcome');else show('path')});
+
+/* ---------- Cuentas: registro, inicio de sesión, inicio ---------- */
+let selAv=AV[0],wMode='reg';
+const _show=show;
+show=function(id,msg){if(id==='friends'&&!msg)msg=`🤝 ¡Con amigos es más divertido, ${nm()}!`;if(id==='welcome'&&!msg&&ACC)msg=`¡Hola de nuevo, ${nm()}! 🐆`;_show(id,msg);if(id==='welcome')renderWelcome();if(id==='friends')renderFriends()};
+function renderWelcome(){
+ const b=$('#wBox');
+ if(ACC){b.innerHTML=`<p class="gold" style="font-weight:800;letter-spacing:1px">GEOPOLÍTICA & NEGOCIOS GLOBALES</p><h1 tabindex="-1">🌍 ${NAME}</h1>
+  <p class="muted" style="margin:10px 0">¡Hola de nuevo, ${esc(S.name)} ${esc(S.avatar)}! Nivel ${level()} · ${S.xp} XP · 🔥 ${streakNow()}</p>
+  <button class="btn gold wide" id="wC">▶ CONTINUAR</button><button class="btn wide" id="wO" style="margin-top:10px">Cerrar sesión</button>`;
+  $('#wC').onclick=()=>{sfx.tap();show('path')};
+  $('#wO').onclick=async()=>{await window.gqSupabase.auth.signOut();S=fresh();ACC='';try{localStorage.removeItem(SESS_K)}catch(e){}renderWelcome();say('¡Hasta pronto! 👋','wave')};return}
+ b.innerHTML=`<p class="gold" style="font-weight:800;letter-spacing:1px">GEOPOLÍTICA & NEGOCIOS GLOBALES</p><h1 tabindex="-1">¡Bienvenido a ${NAME}!</h1>
+  <p class="muted" style="margin:10px 0">Completa unidades, gana XP, mantén tu racha 🔥 y cuida tus vidas ❤️. Jagüi te acompaña.</p>
+  <div class="auth-tabs"><button id="tR" class="${wMode==='reg'?'on':''}">Crear cuenta</button><button id="tL" class="${wMode==='log'?'on':''}">Iniciar sesión</button></div>
+  <div class="field"><label for="em">Correo electrónico</label><input id="em" type="email" autocomplete="email" placeholder="tucorreo@ejemplo.com"></div>
+  ${wMode==='reg'?`<div class="field"><label for="nm">Tu nombre</label><input id="nm" maxlength="18" placeholder="Ej: Camila" autocomplete="name"></div>`:''}
+  <div class="field"><label for="pw">Contraseña</label><input id="pw" class="pw" type="password" maxlength="30" placeholder="Mínimo 8 caracteres" autocomplete="${wMode==='reg'?'new-password':'current-password'}"></div>
+  ${wMode==='reg'?`<div class="field"><label>Tu avatar</label><div class="avs" id="avs">${AV.map(a=>`<button type="button" class="av${a===selAv?' sel':''}" aria-label="Avatar ${a}">${a}</button>`).join('')}</div></div>`:''}
+  <div class="err" id="wErr" role="alert"></div>
+  <button class="btn gold wide" id="go">${wMode==='reg'?'¡CREAR CUENTA!':'ENTRAR'}</button>
+  <p class="muted" style="font-size:12px;margin-top:10px">Tu cuenta es personal y tu progreso se sincroniza para continuar desde otros dispositivos.</p>`;
+ $('#tR').onclick=()=>{wMode='reg';renderWelcome()};$('#tL').onclick=()=>{wMode='log';renderWelcome()};
+ const av=$('#avs');if(av)av.onclick=e=>{const x=e.target.closest('.av');if(!x)return;selAv=x.textContent;document.querySelectorAll('.av').forEach(y=>y.classList.toggle('sel',y===x));sfx.tap()};
+ $('#go').onclick=wMode==='reg'?register:login;
+ b.onkeydown=e=>{if(e.key==='Enter')$('#go').click()}}
+const wErr=m=>{$('#wErr').textContent=m;sfx.bad()};
+async function cloudLoad(user){
+ ACC=user.id;
+ const meta=user.user_metadata||{};
+ let remote=null;
+ const {data,error}=await window.gqSupabase.from('geoquiz_progress').select('progress').eq('user_id',user.id).maybeSingle();
+ if(error)throw error;
+ remote=data?.progress||null;
+ const cached=rd(ACC_K+ACC,{});
+ S={...fresh(),...cached,...(remote||{}),name:meta.full_name||(remote&&remote.name)||cached.name||user.email?.split('@')[0]||'Explorador',avatar:meta.avatar||((remote&&remote.avatar)||cached.avatar||AV[0])};
+ ['friends','inc','out'].forEach(arr);
+ try{localStorage.setItem(SESS_K,ACC)}catch(e){}
+ save();
+}
+function authErrorMessage(error){
+ const m=String(error?.message||'');
+ if(/Invalid login credentials/i.test(m))return 'Correo o contraseña incorrectos.';
+ if(/already registered/i.test(m))return 'Ese correo ya tiene una cuenta. Inicia sesión.';
+ if(/Password should be/i.test(m))return 'La contraseña debe tener al menos 8 caracteres.';
+ if(/Email not confirmed/i.test(m))return 'Confirma tu correo desde el enlace que te enviamos antes de iniciar sesión.';
+ return m||'No pudimos completar la operación. Inténtalo de nuevo.';
+}
+async function ensureGeoQuizSupabase(){
+ if(window.gqSupabase?.auth) return window.gqSupabase;
+ const sources=[
+  'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2',
+  'https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js'
+ ];
+ if(!window.supabase?.createClient){
+  for(const src of sources){
+   try{await new Promise((resolve,reject)=>{const sc=document.createElement('script');sc.src=src;sc.async=true;sc.onload=resolve;sc.onerror=()=>reject(new Error('No se pudo cargar '+src));document.head.appendChild(sc);});if(window.supabase?.createClient)break;}catch(err){console.warn('GeoQuiz: CDN no disponible',err);}
   }
-  isDaily=true;
-  const dayNumber=Math.floor(Date.now()/86400000);
-  filtered=[questions[dayNumber % questions.length]];
-  beginGame();
-});
-
-function beginGame(){
-  current=0;
-  score=0;
-  sessionXP=0;
-  home.classList.add("hidden");
-  result.classList.add("hidden");
-  quiz.classList.remove("hidden");
-  showQuestion();
+ }
+ if(!window.supabase?.createClient) throw new Error('No se pudo cargar el servicio de autenticación. Abre GeoQuiz en Safari o Chrome con Internet y vuelve a intentarlo.');
+ window.gqSupabase=window.gqSupabase||window.supabase.createClient('https://ogsiatufnxtqbyscghdc.supabase.co','sb_publishable_J_gFZzKPHszFpqtV3GQ3Ww_nCRd-ABF');
+ return window.gqSupabase;
+}
+async function register(){
+ const n=$('#nm')?.value.trim()||'',email=$('#em').value.trim().toLowerCase(),p=$('#pw').value;
+ if(n.length<2)return wErr('Escribe tu nombre (mínimo 2 caracteres).');
+ if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))return wErr('Escribe un correo electrónico válido.');
+ if(p.length<8)return wErr('La contraseña debe tener al menos 8 caracteres.');
+ const btn=$('#go');btn.disabled=true;btn.textContent='CREANDO CUENTA…';
+ try{
+  const client=await ensureGeoQuizSupabase();
+  const {data,error}=await client.auth.signUp({email,password:p,options:{data:{full_name:n,avatar:selAv}}});
+  if(error)throw error;
+  if(data.session&&data.user){await cloudLoad(data.user);sfx.win();confetti(120,true);burst(['🏆','⭐','🎉'],6);show('path',`¡Cuenta creada, ${n}! Bienvenido a ${NAME} 🌍💼`)}
+  else{wMode='log';renderWelcome();$('#em').value=email;wErr('¡Casi listo! Te enviamos un enlace de confirmación a tu correo. Confírmalo y luego inicia sesión.');}
+ }catch(e){wErr(authErrorMessage(e))}finally{if($('#go')){$('#go').disabled=false;$('#go').textContent=wMode==='reg'?'¡CREAR CUENTA!':'ENTRAR'}}
+}
+async function login(){
+ const email=$('#em').value.trim().toLowerCase(),p=$('#pw').value;
+ if(!email||!p)return wErr('Escribe tu correo y contraseña.');
+ const btn=$('#go');btn.disabled=true;btn.textContent='INICIANDO…';
+ try{
+  const client=await ensureGeoQuizSupabase();
+  const {data,error}=await client.auth.signInWithPassword({email,password:p});
+  if(error)throw error;
+  await cloudLoad(data.user);sfx.win();show('path',`¡Qué bueno verte, ${S.name}! Racha: ${streakNow()} día(s) 🔥`)
+ }catch(e){wErr(authErrorMessage(e))}finally{if($('#go')){$('#go').disabled=false;$('#go').textContent=wMode==='reg'?'¡CREAR CUENTA!':'ENTRAR'}}
 }
 
-function showQuestion() {
-  const question = filtered[current];
+/* ---------- Amigos, solicitudes y clasificación ---------- */
+function finfo(k){const s=SAMPLE.find(s=>kk(s.n)===k);if(s)return{k,n:s.n,a:s.a,x:s.x,real:false};
+ const st=rd(ACC_K+k,null);return st?{k,n:st.name,a:st.avatar,x:st.xp||0,real:true}:null}
+const allUsers=()=>[...SAMPLE.map(s=>kk(s.n)),...Object.keys(rd(USERS_K,{}))].filter(k=>k!==ACC);
+function lbHTML(){
+ const r=[{k:ACC,n:S.name,a:S.avatar,x:S.xp,me:1},...arr('friends').map(finfo).filter(Boolean)].sort((a,b)=>b.x-a.x);
+ return r.map((p,i)=>`<li class="${p.me?'me':''}"><b>${['🥇','🥈','🥉'][i]||i+1}</b><span>${esc(p.a)}</span>${esc(p.n)}${p.me?' (tú)':''}<span class="xp">${p.x} XP</span></li>`).join('')}
+function newFriend(f){say(`¡Nuevo amigo desbloqueado, ${nm()}! 🤝 ${f.n} ya es tu amigo`,'celebrate',true);confetti(90);burst(['🤝','⭐','🎉'],6);sfx.win()}
+function procOut(){let ch=false;
+ arr('out').slice().forEach(o=>{const f=finfo(o.k);
+  if(!f){S.out=S.out.filter(x=>x!==o);ch=true;return}
+  const ok=f.real?(rd(ACC_K+o.k,{}).friends||[]).includes(ACC):Date.now()-o.t>4000; // los usuarios de ejemplo aceptan a los pocos segundos
+  if(ok){S.out=S.out.filter(x=>x!==o);if(!S.friends.includes(o.k))S.friends.push(o.k);ch=true;newFriend(f)}});
+ if(ch)save()}
+function renderFriends(){
+ $('#friendsBox').innerHTML=`<h2 class="gold" tabindex="-1">🤝 Amigos</h2>
+  <div class="field"><label for="fq">Buscar amigos por nombre</label><input id="fq" class="fsearch" placeholder="Ej: Valentina" autocomplete="off"></div><div id="fRes"></div>
+  <h3 class="gold" style="margin-top:16px">Solicitudes recibidas</h3><div id="fInc"></div>
+  <h3 class="gold" style="margin-top:16px">Mis amigos</h3><div id="fList"></div>
+  <h3 class="gold" style="margin-top:16px">🏆 Clasificación</h3><ol class="rank" id="fRank"></ol>`;
+ $('#fq').oninput=fRefresh;fRefresh()}
+function fRefresh(){
+ if(cur!=='friends'||!$('#fq'))return;procOut();
+ const row=(p,btn)=>`<div class="frow"><span class="fa">${esc(p.a)}</span><div><b>${esc(p.n)}</b><small>Nv ${lv(p.x)} · ${p.x} XP</small></div>${btn}</div>`;
+ const inc=arr('inc').map(finfo).filter(Boolean),fr=arr('friends').map(finfo).filter(Boolean),q=kk($('#fq').value.trim());
+ $('#fInc').innerHTML=inc.length?inc.map(p=>row(p,`<button class="btn green sm" data-ac="${p.k}">Aceptar</button><button class="btn sm" data-rj="${p.k}" aria-label="Rechazar a ${esc(p.n)}">✕</button>`)).join(''):'<p class="muted">Sin solicitudes pendientes.</p>';
+ $('#fList').innerHTML=fr.length?fr.map(p=>row(p,'<span class="gold">✓</span>')).join(''):'<p class="muted">Aún no tienes amigos. ¡Busca uno arriba! 🔎</p>';
+ $('#fRank').innerHTML=lbHTML();
+ const found=allUsers().filter(k=>!q||k.includes(q)).slice(0,q?8:4).map(finfo).filter(Boolean);
+ $('#fRes').innerHTML=(q?'':'<p class="muted">Sugeridos:</p>')+(found.length?found.map(p=>row(p,
+  S.friends.includes(p.k)?'<span class="gold">✓ Amigos</span>':S.inc.includes(p.k)?`<button class="btn green sm" data-ac="${p.k}">Aceptar</button>`:S.out.some(o=>o.k===p.k)?'<span class="muted">⏳ Pendiente</span>':`<button class="btn gold sm" data-ad="${p.k}">➕ Agregar</button>`)).join(''):'<p class="muted">No encontramos a nadie con ese nombre.</p>')}
+$('#friendsBox').onclick=e=>{const b=e.target.closest('button');if(!b)return;const d=b.dataset;
+ if(d.ad){const f=finfo(d.ad);S.out.push({k:d.ad,t:Date.now()});
+  if(f.real){const st=rd(ACC_K+d.ad,{});st.inc=st.inc||[];if(!st.inc.includes(ACC))st.inc.push(ACC);wr(ACC_K+d.ad,st)}
+  save();sfx.tap();say(`📨 Solicitud enviada a ${f.n}, ${nm()}`,'wave');toast('📨 Solicitud enviada')}
+ else if(d.ac){const f=finfo(d.ac);S.inc=S.inc.filter(x=>x!==d.ac);if(!S.friends.includes(d.ac))S.friends.push(d.ac);
+  if(f.real){const st=rd(ACC_K+d.ac,{});st.out=(st.out||[]).filter(o=>o.k!==ACC);st.friends=st.friends||[];if(!st.friends.includes(ACC))st.friends.push(ACC);wr(ACC_K+d.ac,st)}
+  save();newFriend(f)}
+ else if(d.rj){S.inc=S.inc.filter(x=>x!==d.rj);save();sfx.tap()}
+ else return;fRefresh()};
+setInterval(()=>{if(cur==='friends')fRefresh()},2000);
 
-  document.getElementById("counter").textContent =
-    `Pregunta ${current + 1} de ${filtered.length}`;
+/* ---------- Perfil: estadísticas, compartir y cerrar sesión ---------- */
+const _rp=renderProfile;
+renderProfile=function(){_rp();const b=$('#profBox'),en=$('#en');
+ if(en)en.closest('.field').remove();
+ const h=[...b.querySelectorAll('h3')].find(x=>/Liga/.test(x.textContent));if(h)h.textContent='🏆 Clasificación de amigos';
+ const ol=b.querySelector('.rank');if(ol)ol.innerHTML=lbHTML();
+ const st=b.querySelector('.stats');if(st)st.insertAdjacentHTML('afterend',`<div class="stats"><div class="stat"><b>✅ ${S.right||0}</b>aciertos</div><div class="stat"><b>❌ ${S.wrong||0}</b>errores</div></div>`);
+ b.insertAdjacentHTML('beforeend','<button class="btn gold wide" id="pShare" style="margin-top:12px">📤 Compartir</button><button class="btn wide" id="pOut" style="margin-top:8px">Cerrar sesión</button>');
+ $('#pShare').onclick=shareProfile;$('#pOut').onclick=async()=>{try{if(window.gqSupabase)await window.gqSupabase.auth.signOut()}catch(e){console.error('GeoQuiz sign out:',e)}S=fresh();ACC='';try{localStorage.removeItem(SESS_K)}catch(e){}show('welcome','¡Hasta pronto! 👋')}};
+async function shareProfile(){
+ const t=`🌍 ${NAME}\n${S.avatar} ${S.name} · Nivel ${level()} · ${S.xp} XP\n🔥 Racha: ${streakNow()} día(s) · 🏅 ${S.badges.length} insignias\n✅ ${S.right||0} aciertos · ❌ ${S.wrong||0} errores\n¡Juega ${NAME} y supera mi marcador! 🐆`;
+ try{await navigator.clipboard.writeText(t)}catch(e){const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();try{document.execCommand('copy')}catch(_){}ta.remove()}
+ toast('📋 Resumen copiado al portapapeles');say(`¡Perfil copiado, ${nm()}! Compártelo con tus amigos 📤`,'hop');sfx.ok()}
 
-  document.getElementById("bar").style.width =
-    ((current) / filtered.length * 100) + "%";
+/* ---------- Historia y cultura: fichas visuales ---------- */
+const CULTURE_ITEMS=[
+ {id:'bolivar',image:'https://commons.wikimedia.org/wiki/Special:FilePath/Simón_Bolívar.jpg?width=800',cat:'person',tag:'Personaje histórico',title:'Simón Bolívar',meta:'1783–1830 · Venezuela y América del Sur',wiki:'Simón_Bolívar',emoji:'🗡️',intro:'Militar y político conocido como el Libertador. Fue una figura central en los procesos de independencia de varios territorios sudamericanos frente al dominio español.',why:'Su liderazgo ayudó a transformar el mapa político de América del Sur y dejó una huella profunda en la historia republicana de la región.',facts:['Nació en Caracas, en 1783.','Participó en las campañas de independencia de Venezuela, Nueva Granada, Ecuador y Perú.','La creación de Bolivia en 1825 estuvo vinculada a su proyecto político.']},
+ {id:'mandela',image:'https://commons.wikimedia.org/wiki/Special:FilePath/Nelson_Mandela.jpg?width=800',cat:'person',tag:'Personaje histórico',title:'Nelson Mandela',meta:'1918–2013 · Sudáfrica',wiki:'Nelson_Mandela',emoji:'🕊️',intro:'Abogado y dirigente sudafricano que luchó contra el apartheid, un sistema institucional de segregación racial.',why:'Se convirtió en símbolo de resistencia, reconciliación y transición democrática. Fue presidente de Sudáfrica entre 1994 y 1999.',facts:['Pasó 27 años en prisión.','Recibió el Premio Nobel de la Paz en 1993 junto con Frederik de Klerk.','Fue el primer presidente negro elegido democráticamente en Sudáfrica.']},
+ {id:'cleopatra',image:'https://commons.wikimedia.org/wiki/Special:FilePath/Cleopatra_bust_in_the_British_Museum.jpg?width=800',cat:'person',tag:'Personaje histórico',title:'Cleopatra VII',meta:'69–30 a. C. · Antiguo Egipto',wiki:'Cleopatra',emoji:'👑',intro:'Fue la última gobernante activa de la dinastía ptolemaica de Egipto. Su reinado coincidió con la expansión del poder romano por el Mediterráneo.',why:'Su historia permite comprender las relaciones políticas y diplomáticas entre Egipto y Roma durante el final de la época helenística.',facts:['Pertenecía a una dinastía de origen macedonio.','Participó activamente en las alianzas y conflictos políticos de Roma.','Tras su muerte, Egipto pasó a convertirse en provincia romana.']},
+ {id:'independencia-colombia',image:'https://commons.wikimedia.org/wiki/Special:FilePath/Reyerta_del_20_de_julio_de_1810.jpg?width=800',cat:'event',tag:'Acontecimiento',title:'Independencia de Colombia',meta:'Siglo XIX · Nueva Granada',wiki:'Independencia_de_Colombia',emoji:'🇨🇴',intro:'Fue un proceso histórico y político, no un único acontecimiento. El 20 de julio de 1810 comenzó una etapa decisiva en Santafé, pero la guerra y la consolidación republicana continuaron durante años.',why:'Ayuda a entender el nacimiento de la república y los cambios políticos, sociales y territoriales que dieron forma a Colombia.',facts:['El 20 de julio de 1810 se recuerda como inicio del proceso independentista.','La Batalla de Boyacá ocurrió el 7 de agosto de 1819.','La independencia fue un proceso regional con múltiples protagonistas.']},
+ {id:'muro-berlin',image:'https://commons.wikimedia.org/wiki/Special:FilePath/Berlin-wall.jpg?width=800',cat:'event',tag:'Acontecimiento',title:'La caída del Muro de Berlín',meta:'9 de noviembre de 1989 · Alemania',wiki:'Caída_del_Muro_de_Berlín',emoji:'🧱',intro:'La apertura de los pasos fronterizos del Muro de Berlín ocurrió en medio de protestas ciudadanas y cambios políticos en Europa del Este.',why:'Se convirtió en un símbolo del final de la división de Alemania y de la transformación del orden internacional al terminar la Guerra Fría.',facts:['El muro había sido levantado en 1961.','La reunificación alemana se hizo efectiva el 3 de octubre de 1990.','Su caída no significó por sí sola el final inmediato de todos los conflictos de la Guerra Fría.']},
+ {id:'revolucion-francesa',image:'https://commons.wikimedia.org/wiki/Special:FilePath/Storming_the_bastille.jpg?width=800',cat:'event',tag:'Acontecimiento',title:'Revolución francesa',meta:'1789–1799 · Francia',wiki:'Revolución_francesa',emoji:'⚖️',intro:'Proceso político y social que puso fin a la monarquía absoluta en Francia y transformó las ideas sobre ciudadanía, soberanía y derechos.',why:'Sus ideas influyeron en movimientos políticos de Europa y América, aunque el proceso también estuvo marcado por violencia y conflictos.',facts:['Comenzó en 1789.','La Declaración de los Derechos del Hombre y del Ciudadano fue aprobada en ese año.','Napoleón Bonaparte tomó el poder en 1799.']},
+ {id:'inca',image:'https://commons.wikimedia.org/wiki/Special:FilePath/Inca_ruins.jpg?width=800',cat:'civilization',tag:'Civilización',title:'El Imperio inca',meta:'Siglos XV–XVI · Región andina',wiki:'Imperio_inca',emoji:'🏔️',intro:'El Tahuantinsuyo fue un gran Estado andino con centro político en Cusco. Integró territorios que hoy forman parte de Perú, Bolivia, Ecuador, Chile, Argentina y Colombia.',why:'Su organización política, agricultura en terrazas, caminos y arquitectura muestran distintas formas de adaptación al territorio andino.',facts:['Cusco fue su principal centro político y ceremonial.','El quechua tuvo un papel importante como lengua de administración y comunicación.','La red vial conocida como Qhapaq Ñan conectó amplios territorios andinos.']},
+ {id:'maya',image:'https://commons.wikimedia.org/wiki/Special:FilePath/Ruinas_de_Chichén_Itzá.jpg?width=800',cat:'civilization',tag:'Civilización',title:'La civilización maya',meta:'Mesoamérica · Desde la antigüedad hasta hoy',wiki:'Civilización_maya',emoji:'🌽',intro:'Los pueblos mayas desarrollaron ciudades, sistemas de escritura, calendarios, conocimientos matemáticos y astronómicos en Mesoamérica.',why:'La cultura maya no desapareció: millones de personas mayas mantienen vivas sus lenguas y tradiciones en la actualidad.',facts:['Desarrollaron un sistema de escritura jeroglífica.','Construyeron ciudades como Tikal y Chichén Itzá.','El cero tuvo un papel en sus conocimientos matemáticos.']},
+ {id:'cumbia',image:'https://commons.wikimedia.org/wiki/Special:FilePath/CUMBIA_DANZA_COLOMBIANA.jpg?width=800',cat:'tradition',tag:'Tradición cultural',title:'La cumbia colombiana',meta:'Caribe colombiano · Música y danza',wiki:'Cumbia_(Colombia)',emoji:'🥁',intro:'Expresión musical y de baile surgida en la región Caribe de Colombia, resultado de encuentros e intercambios culturales indígenas, africanos y europeos.',why:'La cumbia muestra cómo la música puede expresar la historia, la identidad y la diversidad de una región.',facts:['Se interpreta con instrumentos de percusión y flautas tradicionales, entre otros.','La cumbia tiene distintas expresiones regionales.','Se ha difundido por América Latina con estilos propios en cada país.']},
+ {id:'diwali',image:'https://commons.wikimedia.org/wiki/Special:FilePath/Diwali_festival.jpg?width=800',cat:'tradition',tag:'Tradición cultural',title:'Diwali: festival de las luces',meta:'India y comunidades de la diáspora · Hinduismo y otras tradiciones',wiki:'Diwali',emoji:'🪔',intro:'Celebración conocida como el festival de las luces. Sus significados y relatos varían entre comunidades y tradiciones religiosas del sur de Asia.',why:'Permite conocer la diversidad religiosa y cultural de India y de las comunidades que celebran Diwali en distintas partes del mundo.',facts:['Suele celebrarse durante octubre o noviembre, según el calendario lunar.','Las lámparas de aceite, luces y decoraciones son símbolos característicos.','También es celebrado por comunidades jainistas, sijes y algunas budistas, con significados propios.']},
+ {id:'machu-picchu',image:'https://commons.wikimedia.org/wiki/Special:FilePath/Machu_Picchu,_Peru.jpg?width=800',cat:'place',tag:'Lugar emblemático',title:'Machu Picchu',meta:'Región de Cusco · Perú',wiki:'Machu_Picchu',emoji:'⛰️',intro:'Ciudadela inca construida en los Andes peruanos durante el siglo XV. Su arquitectura se integra con el paisaje montañoso.',why:'Es un ejemplo destacado de ingeniería y planificación inca, y permite estudiar la relación entre sociedad, arquitectura y entorno natural.',facts:['Está situada a más de 2.400 metros sobre el nivel del mar.','Fue declarada Patrimonio Mundial por la UNESCO en 1983.','No existe consenso absoluto sobre todas las funciones que cumplió el sitio.']},
+ {id:'taj-mahal',image:'https://commons.wikimedia.org/wiki/Special:FilePath/The_Taj_Mahal.jpg?width=800',cat:'place',tag:'Lugar emblemático',title:'Taj Mahal',meta:'Agra · India',wiki:'Taj_Mahal',emoji:'🕌',intro:'Mausoleo construido por el emperador mogol Shah Jahan en memoria de Mumtaz Mahal. Es una obra representativa de la arquitectura mogola.',why:'Su historia permite explorar el arte, el poder imperial, las relaciones culturales y las técnicas arquitectónicas del sur de Asia.',facts:['Su construcción comenzó en el siglo XVII.','Combina influencias arquitectónicas persas, islámicas e indias.','Fue inscrito como Patrimonio Mundial de la UNESCO en 1983.']}
+];
+const CULTURE_LABELS={all:'Todo',person:'Personajes',event:'Acontecimientos',civilization:'Civilizaciones',tradition:'Tradiciones',place:'Lugares'};
+let cultureFilter='all';
+function cultureCardHTML(x){return `<article class="culture-card" data-id="${x.id}"><div class="culture-photo" id="photo-${x.id}">${x.image?`<img src="${x.image}" alt="${x.title}" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove();this.parentElement.insertAdjacentHTML('beforeend','<span>${x.emoji}</span>')"><span class="photo-credit">Wikimedia Commons</span>`:`<span>${x.emoji}</span>`}</div><div class="culture-body"><span class="culture-tag">${x.tag}</span><h3>${x.title}</h3><div class="culture-meta">${x.meta}</div><p>${x.intro}</p><div class="culture-more"><b>¿Por qué es importante?</b><p>${x.why}</p><b>Datos para recordar</b><ul>${x.facts.map(f=>`<li>${f}</li>`).join('')}</ul></div><div class="culture-actions"><button type="button" data-expand="${x.id}">Conocer más ↓</button><a href="https://es.wikipedia.org/wiki/${encodeURIComponent(x.wiki)}" target="_blank" rel="noopener">Fuente y lectura ↗</a></div></div></article>`}
+function renderCulture(){const grid=$('#cultureGrid');if(!grid)return;const items=CULTURE_ITEMS.filter(x=>cultureFilter==='all'||x.cat===cultureFilter);grid.innerHTML=items.map(cultureCardHTML).join('')}
+$('#cultureFilters').onclick=e=>{const b=e.target.closest('button[data-cat]');if(!b)return;cultureFilter=b.dataset.cat;$('#cultureFilters').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));renderCulture();sfx.tap()};
+$('#cultureGrid').onclick=e=>{const b=e.target.closest('button[data-expand]');if(!b)return;const card=b.closest('.culture-card'),open=card.classList.toggle('expanded');b.textContent=open?'Mostrar menos ↑':'Conocer más ↓';sfx.tap()};
 
-  document.getElementById("question").textContent = question.q;
+/* ---------- Videos: skeleton mientras cargan las miniaturas ---------- */
+const _rv=renderVideos;
+renderVideos=function(){_rv();document.querySelectorAll('.vcard .th').forEach(t=>{const m=/url\('([^']+)'\)/.exec(t.getAttribute('style')||'');if(!m)return;
+ t.classList.add('ld');const im=new Image();im.onload=im.onerror=()=>t.classList.remove('ld');im.src=m[1]})};
 
-  const optionsBox = document.getElementById("options");
-  optionsBox.innerHTML = "";
-
-  document.getElementById("feedback").classList.add("hidden");
-  document.getElementById("next").classList.add("hidden");
-
-  question.o.forEach((option, index) => {
-    const button = document.createElement("button");
-    button.className = "option";
-    button.textContent = option;
-    button.addEventListener("click", () => answer(index, button));
-    optionsBox.appendChild(button);
-  });
-}
-
-function answer(selectedIndex, selectedButton) {
-  const question=filtered[current];
-  const fresh=!isCompleted(question);
-
-  document.querySelectorAll(".option").forEach((button,index)=>{
-    button.disabled=true;
-    if(index===question.a)button.classList.add("correct");
-  });
-
-  const feedback=document.getElementById("feedback");
-
-  if(selectedIndex===question.a){
-    score++;
-    feedback.textContent="✅ ¡Correcto! "+question.e;
-    if(fresh){
-      const gain=isDaily?100:25;
-      awardXP(gain);
-      sessionXP+=gain;
-      markCompleted(question);
-    }else{
-      feedback.textContent+=" 🔁 Ya completada: +0 XP.";
-    }
-  }else{
-    selectedButton.classList.add("wrong");
-    feedback.textContent="❌ Incorrecto. "+question.e;
-    if(fresh){
-      const gain=isDaily?20:5;
-      awardXP(gain);
-      sessionXP+=gain;
-      markCompleted(question);
-    }else{
-      feedback.textContent+=" 🔁 Ya completada: +0 XP.";
-    }
-  }
-
-  if(isDaily){
-    progress.dailyCompletedDate=todayKey();
-    updateStreak();
-    saveProgress();
-  }
-  updateStats();
-  feedback.classList.remove("hidden");
-  document.getElementById("next").classList.remove("hidden");
-}
-
-document.getElementById("next").addEventListener("click", () => {
-  current++;
-
-  if (current < filtered.length) {
-    showQuestion();
-  } else {
-    finish();
-  }
-});
-
-function finish() {
-  quiz.classList.add("hidden");
-  result.classList.remove("hidden");
-
-  const percentage = Math.round(score / filtered.length * 100);
-
-  document.getElementById("score").textContent =
-    `${score}/${filtered.length} (${percentage}%)`;
-
-  document.getElementById("level").textContent =
-    percentage >= 80 ? "Nivel avanzado 🌟" :
-    percentage >= 60 ? "Nivel intermedio 👍" :
-    "Nivel inicial 📚";
-
-  document.getElementById("summary").innerHTML =
-    "⭐ XP ganado en esta sesión: <b>+"+sessionXP+"</b><br>"+
-    "🧠 Nivel actual: <b>"+getLevel()+"</b><br><br>"+
-    (isDaily ? "🎯 Reto del Día completado. ¡Vuelve mañana!" :
-    "🔁 Puedes repetir para practicar, pero las preguntas ya completadas no vuelven a dar XP.");
-}
-
-document.getElementById("restart").addEventListener("click", () => {
-  result.classList.add("hidden");
-  home.classList.remove("hidden");
-  selectedTopic=null;
-  isDaily=false;
-  sessionXP=0;
-  selectedText.textContent="Selecciona un tema para comenzar.";
-  document.querySelectorAll(".topic").forEach(b=>b.classList.remove("selected"));
-  updateStats();
-});
-updateStats();
+/* ---------- Arranque ---------- */
+(async function boot(){
+ setMute();rotate();
+ try{
+  const client=await ensureGeoQuizSupabase();
+  const {data,error}=await client.auth.getSession();if(error)throw error;
+  if(data.session?.user){await cloudLoad(data.session.user);show('path',streakNow()>0?`🔥 ¡Hola de nuevo, ${S.name}! Racha: ${streakNow()} día(s).`:`¡Qué bueno verte, ${S.name}! Hoy es buen día para empezar una racha 🔥`)}
+  else{ACC='';S=fresh();show('welcome')}
+ }catch(e){console.error('GeoQuiz startup:',e);show('welcome');const w=$('#wBox');if(w){const p=document.createElement('p');p.className='err';p.textContent='No se pudo cargar el servicio de acceso. Abre el archivo en Safari o Chrome con Internet e inténtalo de nuevo.';w.appendChild(p)}}
+})();
 
 </script>
 </body>
